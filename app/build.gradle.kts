@@ -6,7 +6,6 @@ plugins {
     id("kotlin-kapt")
 }
 hilt {
-    //
     enableAggregatingTask = false
 }
 
@@ -64,6 +63,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
 
    /* implementation(libs.room.runtime)

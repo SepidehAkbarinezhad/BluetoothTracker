@@ -17,7 +17,6 @@ import jakarta.inject.Singleton
 object BluetoothModule {
 
     @Provides
-    @Singleton
     fun provideBluetoothManager(
         @ApplicationContext context: Context
     ): BluetoothManager {
@@ -25,7 +24,6 @@ object BluetoothModule {
     }
 
     @Provides
-    @Singleton
     fun provideBluetoothRepository(
         bluetoothManager: BluetoothManager
     ): BluetoothRepository = BluetoothRepositoryImpl(bluetoothManager)

@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class BluetoothManagerImpl(private val context: Context) : BluetoothManager {
 
-
     private val bluetoothAdapter: BluetoothAdapter? by lazy {
         val bluetoothManager =
             context.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager
@@ -19,7 +18,6 @@ class BluetoothManagerImpl(private val context: Context) : BluetoothManager {
 
     private val _devicesFlow = MutableStateFlow<List<BluetoothDevice>>(emptyList())
     override fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
-
 
     override fun startDiscovery() {
 
