@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.hilt.android)
     id("kotlin-kapt")
 }
+hilt {
+    //
+    enableAggregatingTask = false
+}
 
 android {
     namespace = "com.example.bluetoothtracker"
