@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Bluetooth Tracker</string>
+    <string name="permission_dialog_btn_label">get permissions</string>
 </resources>

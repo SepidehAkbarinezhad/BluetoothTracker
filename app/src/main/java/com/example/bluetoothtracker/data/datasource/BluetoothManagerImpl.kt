@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.content.Context
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
-import com.example.bluetoothtracker.presentation.screen.printLog
+import com.example.bluetoothtracker.presentation.utils.printLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

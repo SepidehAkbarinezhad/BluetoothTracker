@@ -1,4 +1,4 @@
-package com.example.bluetoothtracker.presentation.screen
+package com.example.bluetoothtracker.presentation.utils
 
 import timber.log.Timber
 
