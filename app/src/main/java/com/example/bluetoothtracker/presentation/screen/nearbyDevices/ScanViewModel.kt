@@ -16,4 +16,12 @@ class ScanViewModel @Inject constructor(private val bluetoothInteractor: Bluetoo
 
     }
 
+    fun onBluetoothTurnedOn() {
+        startScan()
+    }
+
+    fun onBluetoothTurnedOff() {
+        startScan()
+    }
+
 }

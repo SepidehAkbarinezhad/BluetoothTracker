@@ -18,13 +18,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-class BluetoothManagerImpl(private val context: Context) : BluetoothManager {
-
-    private val bluetoothAdapter: BluetoothAdapter? by lazy {
-        val bluetoothManager =
-            context.getSystemService(Context.BLUETOOTH_SERVICE) as? android.bluetooth.BluetoothManager
-        bluetoothManager?.adapter
-    }
+class BluetoothTrackerManagerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) : BluetoothTrackerManager {
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
@@ -40,7 +34,7 @@ class BluetoothManagerImpl(private val context: Context) : BluetoothManager {
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
             printLog("Scan error $errorCode")
-            stopScan()
+            stop()
         }
 
         @SuppressLint("MissingPermission")
@@ -55,10 +49,10 @@ class BluetoothManagerImpl(private val context: Context) : BluetoothManager {
 
     }
 
-    override fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
+    override fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled==true
 
     @SuppressLint("MissingPermission")
-    override fun startDiscovery() {
+    override fun startScan() {
         printLog("startDiscovery")
 
         // Cancel previous job if any
@@ -77,7 +71,7 @@ class BluetoothManagerImpl(private val context: Context) : BluetoothManager {
     }
 
     @SuppressLint("MissingPermission")
-    override fun stopDiscovery() {
+    override fun stopScan() {
         printLog("stopDiscovery")
         scanJob?.cancel()
         bluetoothLeScanner?.stopScan(scanCallback)
@@ -85,11 +79,11 @@ class BluetoothManagerImpl(private val context: Context) : BluetoothManager {
 
 
     @SuppressLint("MissingPermission")
-    private fun stopScan() {
+    private fun stop() {
         try {
             Timber.d("stopScan")
             if (isBluetoothEnabled()) {
-                stopDiscovery()
+                stopScan()
             }
         } catch (e: Exception) {
             Timber.d("${e.message}")

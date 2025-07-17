@@ -1,11 +1,11 @@
 package com.example.bluetoothtracker.data.repoImpl
 
-import com.example.bluetoothtracker.data.datasource.BluetoothManager
+import com.example.bluetoothtracker.data.datasource.BluetoothTrackerManager
 import com.example.bluetoothtracker.domain.data.Device
 import com.example.bluetoothtracker.domain.repository.BluetoothRepository
 import kotlinx.coroutines.flow.Flow
 
-class BluetoothRepositoryImpl(private val bluetoothManager: BluetoothManager) :
+class BluetoothRepositoryImpl(private val bluetoothManager: BluetoothTrackerManager) :
     BluetoothRepository {
 
     override fun isBluetoothEnabled(): Boolean = bluetoothManager.isBluetoothEnabled()
@@ -15,7 +15,7 @@ class BluetoothRepositoryImpl(private val bluetoothManager: BluetoothManager) :
     }
 
     override fun startScan() {
-        bluetoothManager.startDiscovery()
+        bluetoothManager.startScan()
     }
 
     override fun stopScan() {

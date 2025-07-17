@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,10 +28,10 @@ fun PermissionAlertDialog(onConfirm: () -> Unit) {
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AppText(text = "permission dialog", textType = TextType.SubTitle)
+                AppText(text = R.string.permission_alert_dialog, textType = TextType.SubTitle)
                 Spacer(modifier = Modifier.height(8.dp))
                 AppButton(text = R.string.permission_dialog_btn_label, onClick = onConfirm)
             }
