@@ -15,7 +15,7 @@ class BluetoothRepositoryImpl(private val bluetoothManager: BluetoothManager) :
     }
 
     override fun startScan() {
-        TODO("Not yet implemented")
+        bluetoothManager.startDiscovery()
     }
 
     override fun stopScan() {

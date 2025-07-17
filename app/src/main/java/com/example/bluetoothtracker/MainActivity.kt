@@ -16,6 +16,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.bluetoothtracker.presentation.screen.nearbyDevices.NearbyDevicesViewModel
 import com.example.bluetoothtracker.ui.theme.BluetoothTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
