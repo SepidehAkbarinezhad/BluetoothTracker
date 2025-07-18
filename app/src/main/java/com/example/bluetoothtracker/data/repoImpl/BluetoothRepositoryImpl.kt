@@ -10,15 +10,11 @@ class BluetoothRepositoryImpl(private val bluetoothManager: BluetoothDeviceTrack
 
     override fun isBluetoothEnabled(): Boolean = bluetoothManager.isBluetoothEnabled()
 
-    override fun getNearbyDevices(): Flow<List<Device>> {
-        TODO("Not yet implemented")
-    }
-
     override fun startScan() {
         bluetoothManager.startScan()
     }
 
     override fun stopScan() {
-        TODO("Not yet implemented")
+        bluetoothManager.stopScan()
     }
 }

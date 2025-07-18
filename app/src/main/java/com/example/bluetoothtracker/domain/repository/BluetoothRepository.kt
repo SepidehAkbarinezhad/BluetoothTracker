@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 * */
 interface BluetoothRepository {
     fun isBluetoothEnabled(): Boolean
-    fun getNearbyDevices(): Flow<List<Device>>
     fun startScan()
     fun stopScan()
 }

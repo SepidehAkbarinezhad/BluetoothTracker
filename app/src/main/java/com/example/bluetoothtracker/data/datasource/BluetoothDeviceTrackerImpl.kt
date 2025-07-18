@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.content.Context
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
+import com.example.bluetoothtracker.domain.repository.BluetoothRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-class BluetoothDeviceTrackerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) : BluetoothDeviceTracker {
+class BluetoothDeviceTrackerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) :
+    BluetoothDeviceTracker {
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
