@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(private val bluetoothInteractor: Bluetoo
     }
 
     fun stopScan() {
-
+        bluetoothInteractor.stopScnBluetoothUseCase
     }
 
 

@@ -29,6 +29,8 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
         if (state.permissionGranted == true && state.bluetoothState == true) {
             printLog("LaunchedEffect permissions not granted else")
             viewModel.startScan()
+        }else if (state.permissionGranted == false || state.bluetoothState==false){
+            viewModel.stopScan()
         }
     }
 

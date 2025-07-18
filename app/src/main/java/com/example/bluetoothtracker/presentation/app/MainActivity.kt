@@ -84,17 +84,14 @@ class MainActivity : ComponentActivity() {
 
 
     private fun initObservers(){
-        printLog("initObservers")
         permissionManager = PermissionManager(
             activity = this,
             onUpdatePermissionState = { hasPermission ->
                 if (hasPermission) {
-                    printLog("if (hasPermission)")
                     viewModel.onAction((HomeAction.OnPermissionGrantedChange(permissionGranted = true)))
                     // Only create BluetoothObserver AFTER permission is granted
                     addBluetoothObserver()
                 } else {
-                    printLog("if (hasPermission) else")
                     // Show UI: "Bluetooth features won't work without permission"
                     viewModel.onAction(HomeAction.ShowPermissionAlertDialog(true))
 
@@ -115,12 +112,10 @@ class MainActivity : ComponentActivity() {
         )
     }
     private fun addPermissionObserver(){
-        printLog("addPermissionObserver")
         lifecycle.addObserver(permissionManager)
     }
 
     private fun addBluetoothObserver() {
-        printLog("addBluetoothObserver()")
         lifecycle.addObserver(
             observer = BluetoothStateObserver(
                 activity = this,
@@ -131,6 +126,11 @@ class MainActivity : ComponentActivity() {
                 },
             )
         )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.stopScan()
     }
 }
 
