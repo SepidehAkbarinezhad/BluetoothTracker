@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Bluetooth Tracker</string>
+    <string name="permission_alert_dialog">Scanning Bluetooth devices require some bluetooth and Location permissions to work properly</string>
+    <string name="permission_denied_dialog">To discover nearby devices and update data properly, this app needs Bluetooth permission.
+Please grant the required permission; otherwise, the app may not function as expected</string>
+    <string name="permission_dialog_btn_label">get permissions</string>
+    <string name="ok_btn_label">ok</string>
+
 </resources>
