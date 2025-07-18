@@ -1,4 +1,4 @@
-package com.example.bluetoothtracker.presentation.screen.nearbyDevices.components
+package com.example.bluetoothtracker.presentation.screen.home.components
 
 
 import androidx.compose.foundation.layout.Column

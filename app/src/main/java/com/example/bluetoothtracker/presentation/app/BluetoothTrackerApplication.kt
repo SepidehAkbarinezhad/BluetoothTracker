@@ -1,4 +1,4 @@
-package com.example.bluetoothtracker.presentation
+package com.example.bluetoothtracker.presentation.app
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

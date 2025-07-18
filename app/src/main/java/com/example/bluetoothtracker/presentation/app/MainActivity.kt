@@ -1,4 +1,4 @@
-package com.example.bluetoothtracker.presentation
+package com.example.bluetoothtracker.presentation.app
 
 import android.bluetooth.BluetoothAdapter
 import android.os.Bundle
@@ -6,14 +6,19 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.bluetoothtracker.presentation.common.BluetoothStateObserver
 import com.example.bluetoothtracker.presentation.common.PermissionManager
-import com.example.bluetoothtracker.presentation.screen.nearbyDevices.HomeAction
-import com.example.bluetoothtracker.presentation.screen.nearbyDevices.HomeScreenRoot
-import com.example.bluetoothtracker.presentation.screen.nearbyDevices.HomeViewModel
+import com.example.bluetoothtracker.presentation.screen.home.HomeAction
+import com.example.bluetoothtracker.presentation.screen.home.HomeEvent
+import com.example.bluetoothtracker.presentation.screen.home.HomeScreenRoot
+import com.example.bluetoothtracker.presentation.screen.home.HomeViewModel
 import com.example.bluetoothtracker.presentation.utils.printLog
 import com.example.bluetoothtracker.ui.theme.BluetoothTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,6 +36,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         initObservers()
         addPermissionObserver()
+        lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.event.collect { event ->
+                    when (event) {
+                        HomeEvent.RequestBluetoothPermission -> {
+                            permissionManager.requestBluetoothPermissions()
+                        }
+                        HomeEvent.RequestEnableBluetooth -> {
+                            bluetoothStateObserver.requestEnableBluetooth()
+                        }
+                    }
+                }
+            }
+        }
         enableEdgeToEdge()
         setContent {
             BluetoothTrackerTheme {
@@ -50,8 +69,9 @@ class MainActivity : ComponentActivity() {
                     addBluetoothObserver()
                 } else {
                     printLog("if (hasPermission) else")
-                    // Request permission
-                    permissionManager.requestBluetoothPermissions()
+                    // Show UI: "Bluetooth features won't work without permission"
+                    viewModel.onAction(HomeAction.ShowPermissionAlertDialog(true))
+
                 }
             },
             onPermissionGranted = { granted ->
