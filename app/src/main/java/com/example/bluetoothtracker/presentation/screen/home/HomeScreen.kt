@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bluetoothtracker.presentation.common.permissionsList
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionAlertDialog
+import com.example.bluetoothtracker.presentation.screen.home.components.PermissionDeniedDialog
 import com.example.bluetoothtracker.presentation.utils.printLog
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
@@ -37,8 +38,8 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
 
     HomeScreen(
         state = state,
-        onAction = { action -> viewModel.onAction(action)},
-        onEvent = {event->viewModel.sendEvent(event)})
+        onAction = { action -> viewModel.onAction(action) },
+        onEvent = { event -> viewModel.sendEvent(event) })
 
 }
 
@@ -46,7 +47,7 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
 fun HomeScreen(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
-    onEvent: (HomeEvent)->Unit,
+    onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -56,6 +57,10 @@ fun HomeScreen(
             PermissionAlertDialog {
                 onAction(HomeAction.ShowPermissionAlertDialog(false))
                 onEvent(HomeEvent.RequestBluetoothPermission)
+            }
+        } else if (state.showPermissionDeniedDialog) {
+            PermissionDeniedDialog {
+                onAction(HomeAction.ShowPermissionDeniedDialog(false))
             }
         }
     }

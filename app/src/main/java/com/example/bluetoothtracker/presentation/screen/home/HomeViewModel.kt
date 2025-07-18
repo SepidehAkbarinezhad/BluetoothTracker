@@ -33,6 +33,7 @@ class HomeViewModel @Inject constructor(private val bluetoothInteractor: Bluetoo
     fun onAction(action: HomeAction) {
         when (action) {
             is HomeAction.ShowPermissionAlertDialog -> homeState.update { it.copy(showPermissionAlertDialog = action.show) }
+            is HomeAction.ShowPermissionDeniedDialog -> homeState.update { it.copy(showPermissionDeniedDialog = action.show) }
             is HomeAction.OnPermissionGrantedChange -> homeState.update { it.copy(permissionGranted = action.permissionGranted) }
             is HomeAction.OnBluetoothStateChange -> homeState.update { it.copy(bluetoothState = action.bluetoothState) }
         }

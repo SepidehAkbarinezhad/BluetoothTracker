@@ -82,7 +82,7 @@ class MainActivity : ComponentActivity() {
                     addBluetoothObserver()
                 } else {
                     // Show UI: "Bluetooth features won't work without permission"
-                    //it is handled in Home screen
+                    viewModel.onAction(HomeAction.ShowPermissionDeniedDialog(true))
                 }
             }
         )
