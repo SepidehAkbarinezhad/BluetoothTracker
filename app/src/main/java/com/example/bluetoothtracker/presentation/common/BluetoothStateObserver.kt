@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.bluetoothtracker.presentation.utils.printLog
@@ -16,16 +15,15 @@ import com.example.bluetoothtracker.presentation.utils.printLog
 class BluetoothStateObserver(
     private val activity: ComponentActivity,
     var btAdapter: BluetoothAdapter?,
+    private val btEnableResultLauncher: ActivityResultLauncher<Intent>,
     private val onBluetoothState: (Boolean) -> Unit,
 ) : DefaultLifecycleObserver {
 
-    private lateinit var btEnableResultLauncher: ActivityResultLauncher<Intent>
     private lateinit var broadcastReceiver: BroadcastReceiver
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
         printLog("onCreate")
-        registerBluetoothLauncher()
         createBroadcastReceiver()
         onBluetoothState(btAdapter?.isEnabled == true)
         //the permissions are granted before adding this observer 
@@ -64,27 +62,6 @@ class BluetoothStateObserver(
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         btEnableResultLauncher.launch(intent)
     }
-
-    /*
-    * If the user taps "Allow", the callback receives Activity.RESULT_OK
-    * and onBluetoothEnabled() is triggered.
-    * If the user cancels or denies, Activity.RESULT_CANCELED is received
-    * and onBluetoothDisabled() is triggered.
-    * */
-    private fun registerBluetoothLauncher() {
-        btEnableResultLauncher = activity.registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                printLog("Activity.RESULT_OK")
-                onBluetoothState(true)
-            } else {
-                printLog("Activity.RESULT_NOT_OK")
-                onBluetoothState(false)
-            }
-        }
-    }
-
 
     /*
     * BluetoothAdapter broadcasts ACTION_STATE_CHANGED, so you can listen with a BroadcastReceiver

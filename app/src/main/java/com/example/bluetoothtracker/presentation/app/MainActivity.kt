@@ -1,10 +1,14 @@
 package com.example.bluetoothtracker.presentation.app
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -32,6 +36,27 @@ class MainActivity : ComponentActivity() {
     private lateinit var permissionManager: PermissionManager
     private lateinit var bluetoothStateObserver: BluetoothStateObserver
 
+    /*
+    * registerForActivityResult() must be called before the activity is STARTED, usually in onCreate().
+    * in my scenario because i want to add bluetoothStateObserver to lifecycle after being sure permissions are granted so
+    * the activity may already be in the STARTED state — too late for safe registration and cause crashes when i put it
+    * in the observer class. so Don’t lazily register it when needed — it must be declared early and only once.
+    * Activity.registerForActivityResult(...) must be called before the Activity is STARTED.
+    * But lifecycle.addObserver(...) can be called anytime,so i move it out from the observer class and pass it.
+    * */
+    private val btEnableResultLauncher = this.registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+
+        if (result.resultCode == Activity.RESULT_OK) {
+            printLog("Activity.RESULT_OK")
+            viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = true))
+        } else {
+            printLog("Activity.RESULT_NOT_OK")
+            viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = false))
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initObservers()
@@ -57,6 +82,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     private fun initObservers(){
         printLog("initObservers")
@@ -98,6 +124,7 @@ class MainActivity : ComponentActivity() {
             observer = BluetoothStateObserver(
                 activity = this,
                 btAdapter = bluetoothAdapter,
+                btEnableResultLauncher = btEnableResultLauncher,
                 onBluetoothState = { isEnabled ->
                     viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = isEnabled))
                 },
