@@ -1,4 +1,4 @@
-package com.example.bluetoothtracker.presentation.utils
+package com.example.bluetoothtracker.presentation.common
 
 import android.Manifest
 import android.os.Build

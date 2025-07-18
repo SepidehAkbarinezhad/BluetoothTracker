@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-class BluetoothTrackerManagerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) : BluetoothTrackerManager {
+class BluetoothDeviceDeviceTrackerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) : BluetoothDeviceTracker {
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 

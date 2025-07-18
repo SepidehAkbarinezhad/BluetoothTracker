@@ -9,8 +9,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.bluetoothtracker.presentation.common.permissionsList
 import com.example.bluetoothtracker.presentation.screen.nearbyDevices.components.PermissionAlertDialog
-import com.example.bluetoothtracker.presentation.utils.permissionsList
 import com.example.bluetoothtracker.presentation.utils.printLog
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.MultiplePermissionsState
@@ -22,19 +22,15 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
     val bluetoothPermissionsState = rememberMultiplePermissionsState(permissions = permissionsList)
     val state by viewModel.homeStateValue.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = bluetoothPermissionsState.allPermissionsGranted) {
-        when (bluetoothPermissionsState.allPermissionsGranted) {
-            true -> {
-                printLog("allPermissionGranted")
-                viewModel.startScan()
-            }
-
-            false -> {
-                printLog("permission denied")
-                viewModel.stopScan()
-            }
+    LaunchedEffect(key1 = state.permissionGranted, key2 = state.bluetoothState) {
+        if (state.permissionGranted==false) {// TODO:  show dialog Bluetooth features won't work without permission
+            printLog("LaunchedEffect permissions not granted")
+        } else if(state.permissionGranted==true){
+            printLog("LaunchedEffect permissions not granted else")
+            if (state.bluetoothState==true){viewModel.startScan()}
         }
     }
+
 
     HomeScreen(bluetoothPermissionsState = bluetoothPermissionsState, state = state)
 
@@ -47,21 +43,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier.fillMaxSize()) {
-        when (state.bluetoothState) {
-            true->{
-                printLog("bluetooth is on")
-                if(!bluetoothPermissionsState.allPermissionsGranted){
-                    printLog("bluetooth is on and permissions not granted")
-                    PermissionAlertDialog {
-                        printLog("onclick")
-                        bluetoothPermissionsState.launchMultiplePermissionRequest()
-                    }
-                }
-            }
-            false -> {
-                printLog("alert user to turn on")
-            }
-        }
+
     }
 
 }
