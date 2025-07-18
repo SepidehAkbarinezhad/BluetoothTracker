@@ -3,7 +3,6 @@ package com.example.bluetoothtracker.presentation.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetoothtracker.domain.interactor.BluetoothInteractor
-import com.example.bluetoothtracker.presentation.utils.printLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +39,7 @@ class HomeViewModel @Inject constructor(private val bluetoothInteractor: Bluetoo
     }
 
     fun startScan() {
-        bluetoothInteractor.startScan
+        bluetoothInteractor.startScnBluetooth()
     }
 
     fun stopScan() {

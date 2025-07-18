@@ -47,7 +47,6 @@ class MainActivity : ComponentActivity() {
     private val btEnableResultLauncher = this.registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-
         if (result.resultCode == Activity.RESULT_OK) {
             printLog("Activity.RESULT_OK")
             viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = true))
@@ -91,6 +90,7 @@ class MainActivity : ComponentActivity() {
             onUpdatePermissionState = { hasPermission ->
                 if (hasPermission) {
                     printLog("if (hasPermission)")
+                    viewModel.onAction((HomeAction.OnPermissionGrantedChange(permissionGranted = true)))
                     // Only create BluetoothObserver AFTER permission is granted
                     addBluetoothObserver()
                 } else {
@@ -105,6 +105,7 @@ class MainActivity : ComponentActivity() {
                 viewModel.onAction((HomeAction.OnPermissionGrantedChange(permissionGranted = granted)))
                 if (granted) {
                     // Re-check or trigger Bluetooth enabling here
+                    // TODO: show a dialog and inform user to requestEnableBluetooth 
                     addBluetoothObserver()
                 } else {
                     // Show UI: "Bluetooth features won't work without permission"

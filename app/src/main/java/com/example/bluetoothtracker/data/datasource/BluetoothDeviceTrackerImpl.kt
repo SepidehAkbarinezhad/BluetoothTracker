@@ -18,12 +18,13 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-class BluetoothDeviceDeviceTrackerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) : BluetoothDeviceTracker {
+class BluetoothDeviceTrackerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) : BluetoothDeviceTracker {
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
     private val _scannedDevices = MutableSharedFlow<BluetoothScanResult>()
     val scannedDevices: SharedFlow<BluetoothScanResult> = _scannedDevices.asSharedFlow()
+    private val scannedDeviceCache = mutableMapOf<String, BluetoothScanResult>()
 
     private var scanJob: Job? = null
     private val scanPeriod = 10_000L  // 10 seconds scan
@@ -40,10 +41,22 @@ class BluetoothDeviceDeviceTrackerImpl(private val context: Context, private val
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
             super.onScanResult(callbackType, result)
-            result?.device?.let { device ->
-                printLog(
-                    "Device found: ${device.address}, RSSI: ${result.rssi}, Name: ${device.name}"
+            result?.let { scanResult ->
+                val mac = scanResult.device.address ?: return
+                val device = BluetoothScanResult(
+                    name = scanResult.device.name.orEmpty(),
+                    macAddress = mac,
+                    rssi = scanResult.rssi,
+                    lastSeen = System.currentTimeMillis()
                 )
+
+                /*
+                * Add or update the scanned device in the cache using MAC as the unique key.
+                * This avoids duplicates and ensures we always keep the latest scan info.
+                */
+                scannedDeviceCache[mac] = device
+
+                _scannedDevices.tryEmit(device)
             }
         }
 
@@ -62,7 +75,7 @@ class BluetoothDeviceDeviceTrackerImpl(private val context: Context, private val
                 // Start scanning
                 bluetoothLeScanner?.startScan(scanCallback)
                 delay(scanPeriod) // scan for 10 seconds
-
+                printLog("result: ${scannedDeviceCache.values}")
                 // Stop scanning
                 bluetoothLeScanner?.stopScan(scanCallback)
                 delay(waitPeriod) // wait for 5 seconds
@@ -76,7 +89,6 @@ class BluetoothDeviceDeviceTrackerImpl(private val context: Context, private val
         scanJob?.cancel()
         bluetoothLeScanner?.stopScan(scanCallback)
     }
-
 
     @SuppressLint("MissingPermission")
     private fun stop() {

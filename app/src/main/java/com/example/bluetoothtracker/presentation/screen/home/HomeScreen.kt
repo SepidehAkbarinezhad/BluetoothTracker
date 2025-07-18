@@ -25,13 +25,10 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
 
 
     LaunchedEffect(key1 = state.permissionGranted, key2 = state.bluetoothState) {
-        if (state.permissionGranted == false) {// TODO:  show dialog Bluetooth features won't work without permission
-            printLog("LaunchedEffect permissions not granted")
-        } else if (state.permissionGranted == true) {
+        printLog("LaunchedEffect  $state")
+        if (state.permissionGranted == true && state.bluetoothState == true) {
             printLog("LaunchedEffect permissions not granted else")
-            if (state.bluetoothState == true) {
-                viewModel.startScan()
-            }
+            viewModel.startScan()
         }
     }
 
