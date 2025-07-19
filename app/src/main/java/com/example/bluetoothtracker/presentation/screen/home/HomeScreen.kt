@@ -34,7 +34,6 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
         }
     }
 
-
     HomeScreen(
         state = state,
         onAction = { action -> viewModel.onAction(action) },
