@@ -1,7 +1,7 @@
 package com.example.bluetoothtracker.data.repoImpl
 
 import com.example.bluetoothtracker.data.datasource.BluetoothDeviceTracker
-import com.example.bluetoothtracker.domain.data.Device
+import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.domain.repository.BluetoothRepository
 import kotlinx.coroutines.flow.Flow
 
@@ -17,4 +17,8 @@ class BluetoothRepositoryImpl(private val bluetoothManager: BluetoothDeviceTrack
     override fun stopScan() {
         bluetoothManager.stopScan()
     }
+
+    override fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>> =
+        bluetoothManager.scannedDevicesFlow()
+
 }

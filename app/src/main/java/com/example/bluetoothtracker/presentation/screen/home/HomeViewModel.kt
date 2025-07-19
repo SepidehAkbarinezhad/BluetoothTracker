@@ -3,6 +3,8 @@ package com.example.bluetoothtracker.presentation.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetoothtracker.domain.interactor.BluetoothInteractor
+import com.example.bluetoothtracker.domain.repository.BluetoothRepository
+import com.example.bluetoothtracker.presentation.utils.printLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +16,16 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val bluetoothInteractor: BluetoothInteractor) :
+class HomeViewModel @Inject constructor(private val bluetoothInteractor: BluetoothInteractor,val bluetoothRepository: BluetoothRepository) :
     ViewModel() {
 
         init {
-            bluetoothInteractor.insertScannedDeviceUseCase()
+            printLog("initttt","sharedTag")
+            //viewModelScope.launch { bluetoothInteractor.insertScannedDeviceUseCase() }
+            viewModelScope.launch { bluetoothRepository.scannedDevicesFlow().collect{ deviceList ->
+                printLog("collect: $deviceList","sharedTag")
+
+            } }
         }
     private val _event = MutableSharedFlow<HomeEvent>()
     val event = _event.asSharedFlow()

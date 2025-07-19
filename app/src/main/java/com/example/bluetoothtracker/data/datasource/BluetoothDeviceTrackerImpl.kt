@@ -6,9 +6,11 @@ import android.bluetooth.le.ScanCallback
 import android.content.Context
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.presentation.utils.printLog
+import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,7 +29,11 @@ class BluetoothDeviceTrackerImpl(
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
-    private val _scannedDevices = MutableSharedFlow<List<BluetoothScanResult>>()
+    private val _scannedDevices = MutableSharedFlow<List<BluetoothScanResult>>(
+        replay = 1,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
     val scannedDevices: SharedFlow<List<BluetoothScanResult>> = _scannedDevices.asSharedFlow()
     private val scannedDeviceCache = mutableMapOf<String, BluetoothScanResult>()
 
@@ -45,8 +51,11 @@ class BluetoothDeviceTrackerImpl(
 
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
+            printLog("onScanResult")
             super.onScanResult(callbackType, result)
             result?.let { scanResult ->
+                printLog("onScanResult $scanResult")
+
                 val mac = scanResult.device.address ?: return
                 val device = BluetoothScanResult(
                     name = scanResult.device.name.orEmpty(),
@@ -95,6 +104,8 @@ class BluetoothDeviceTrackerImpl(
     }
 
     private suspend fun emitForInsertInRoom(){
+        printLog("emitForInsertInRoom","sharedTag")
+
         val resultList = scannedDeviceCache.values.toList()
         printLog("result: $resultList")
         _scannedDevices.emit(resultList)
