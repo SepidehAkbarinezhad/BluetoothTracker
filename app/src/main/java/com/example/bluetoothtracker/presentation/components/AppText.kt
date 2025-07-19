@@ -45,7 +45,7 @@ fun AppText(
     modifier: Modifier = Modifier,
     text: String,
     textType: TextType = TextType.Body,
-    color: Color = MaterialTheme.colorScheme.onSurface,
+    color: Color = Color.Black,
     textAlign: TextAlign = TextAlign.Justify,
     textDirection: TextDirection = TextDirection.Unspecified,
     textDecoration: TextDecoration = TextDecoration.None,

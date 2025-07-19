@@ -16,18 +16,23 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(private val bluetoothInteractor: BluetoothInteractor,val bluetoothRepository: BluetoothRepository) :
+class HomeViewModel @Inject constructor(
+    private val bluetoothInteractor: BluetoothInteractor,
+    val bluetoothRepository: BluetoothRepository
+) :
     ViewModel() {
 
-        init {
-            printLog("init vm")
-            viewModelScope.launch {
-                 bluetoothInteractor.getAllDevicesUseCase().collect{list->
-                    printLog("getAllDevicesUseCase: $list")
-                }
-
+    init {
+        printLog("init vm")
+        viewModelScope.launch {
+            bluetoothInteractor.getAllDevicesUseCase().collect { list ->
+                printLog("getAllDevicesUseCase: $list", "listTag")
+                homeState.update { it.copy(devicesList = list) }
             }
+
         }
+    }
+
     private val _event = MutableSharedFlow<HomeEvent>()
     val event = _event.asSharedFlow()
 
@@ -42,8 +47,18 @@ class HomeViewModel @Inject constructor(private val bluetoothInteractor: Bluetoo
 
     fun onAction(action: HomeAction) {
         when (action) {
-            is HomeAction.ShowPermissionAlertDialog -> homeState.update { it.copy(showPermissionAlertDialog = action.show) }
-            is HomeAction.ShowPermissionDeniedDialog -> homeState.update { it.copy(showPermissionDeniedDialog = action.show) }
+            is HomeAction.ShowPermissionAlertDialog -> homeState.update {
+                it.copy(
+                    showPermissionAlertDialog = action.show
+                )
+            }
+
+            is HomeAction.ShowPermissionDeniedDialog -> homeState.update {
+                it.copy(
+                    showPermissionDeniedDialog = action.show
+                )
+            }
+
             is HomeAction.OnPermissionGrantedChange -> homeState.update { it.copy(permissionGranted = action.permissionGranted) }
             is HomeAction.OnBluetoothStateChange -> homeState.update { it.copy(bluetoothState = action.bluetoothState) }
         }

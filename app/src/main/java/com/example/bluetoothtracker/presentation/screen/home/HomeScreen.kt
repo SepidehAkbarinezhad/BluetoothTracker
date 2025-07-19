@@ -2,13 +2,9 @@
 
 package com.example.bluetoothtracker.presentation.screen.home
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,11 +12,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bluetoothtracker.presentation.common.permissionsList
-import com.example.bluetoothtracker.presentation.screen.home.components.DeviceListItem
-import com.example.bluetoothtracker.presentation.screen.home.components.HomeTabs
+import com.example.bluetoothtracker.presentation.screen.home.components.DeviceList
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionAlertDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionDeniedDialog
 import com.example.bluetoothtracker.presentation.utils.printLog
@@ -61,22 +55,8 @@ fun HomeScreen(
     var tabIndex by remember { mutableIntStateOf(0) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.Black)
-                .statusBarsPadding()
-        ) {
-            item {
-                HomeTabs(tabIndex = tabIndex, onTabClicked = { index -> tabIndex = index })
-            }
-
-            items(items = state.devicesList, key = { it.macAddress }) { device ->
-                DeviceListItem(device = device)
-            }
-        }
-
-        if (state.showPermissionAlertDialog) {
+        DeviceList(state = state, onAction = onAction)
+       /* if (state.showPermissionAlertDialog) {
             printLog("show permission alert dialog")
             PermissionAlertDialog {
                 onAction(HomeAction.ShowPermissionAlertDialog(false))
@@ -86,7 +66,7 @@ fun HomeScreen(
             PermissionDeniedDialog {
                 onAction(HomeAction.ShowPermissionDeniedDialog(false))
             }
-        }
+        }*/
     }
 
 }

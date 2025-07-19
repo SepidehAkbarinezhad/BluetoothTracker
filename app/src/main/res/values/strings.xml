@@ -5,5 +5,8 @@
 Please grant the required permission; otherwise, the app may not function as expected</string>
     <string name="permission_dialog_btn_label">get permissions</string>
     <string name="ok_btn_label">ok</string>
+    <string name="mac_address_label">macAddress: %s</string>
+    <string name="name_label">name: %s</string>
+    <string name="rssi_label">rssi: %s</string>
 
 </resources>
