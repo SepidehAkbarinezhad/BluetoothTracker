@@ -70,8 +70,8 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     kapt(libs.hilt.compiler)
 
-   /* implementation(libs.room.runtime)
-    implementation(libs.room.compiler)
-    implementation(libs.room.ktx)*/
+    implementation(libs.room.runtime)
+    kapt(libs.room.compiler)
+    implementation(libs.room.ktx)
 
 }

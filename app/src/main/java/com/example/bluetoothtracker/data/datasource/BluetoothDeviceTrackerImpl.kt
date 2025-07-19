@@ -4,12 +4,18 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.content.Context
+import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
+import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -18,12 +24,20 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-class BluetoothDeviceTrackerImpl(private val context: Context, private val bluetoothAdapter: BluetoothAdapter?) : BluetoothDeviceTracker {
+class BluetoothDeviceTrackerImpl @Inject constructor(
+    private val bluetoothAdapter: BluetoothAdapter?,
+    private val scannedDeviceRepository : ScannedDeviceRepository
+) :
+    BluetoothDeviceTracker {
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
-    private val _scannedDevices = MutableSharedFlow<BluetoothScanResult>()
-    val scannedDevices: SharedFlow<BluetoothScanResult> = _scannedDevices.asSharedFlow()
+    private val _scannedDevices = MutableSharedFlow<List<BluetoothScanResult>>(
+        replay = 1,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
+    val scannedDevices: SharedFlow<List<BluetoothScanResult>> = _scannedDevices
     private val scannedDeviceCache = mutableMapOf<String, BluetoothScanResult>()
 
     private var scanJob: Job? = null
@@ -40,8 +54,11 @@ class BluetoothDeviceTrackerImpl(private val context: Context, private val bluet
 
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
+            printLog("onScanResult")
             super.onScanResult(callbackType, result)
             result?.let { scanResult ->
+                printLog("onScanResult $scanResult")
+
                 val mac = scanResult.device.address ?: return
                 val device = BluetoothScanResult(
                     name = scanResult.device.name.orEmpty(),
@@ -55,14 +72,12 @@ class BluetoothDeviceTrackerImpl(private val context: Context, private val bluet
                 * This avoids duplicates and ensures we always keep the latest scan info.
                 */
                 scannedDeviceCache[mac] = device
-
-                _scannedDevices.tryEmit(device)
             }
         }
 
     }
 
-    override fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled==true
+    override fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
 
     @SuppressLint("MissingPermission")
     override fun startScan() {
@@ -78,6 +93,7 @@ class BluetoothDeviceTrackerImpl(private val context: Context, private val bluet
                 printLog("result: ${scannedDeviceCache.values}")
                 // Stop scanning
                 bluetoothLeScanner?.stopScan(scanCallback)
+                emitForInsertInRoom()
                 delay(waitPeriod) // wait for 5 seconds
             }
         }
@@ -89,6 +105,17 @@ class BluetoothDeviceTrackerImpl(private val context: Context, private val bluet
         scanJob?.cancel()
         bluetoothLeScanner?.stopScan(scanCallback)
     }
+
+    private suspend fun emitForInsertInRoom(){
+        printLog("emitForInsertInRoom","sharedTag")
+
+        val resultList = scannedDeviceCache.values.toList()
+        printLog("result: $resultList")
+        scannedDeviceRepository.insertDeviceList(resultList)
+        //_scannedDevices.emit(resultList)
+    }
+
+    override fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>> = scannedDevices
 
     @SuppressLint("MissingPermission")
     private fun stop() {

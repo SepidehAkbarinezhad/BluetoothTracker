@@ -1,5 +1,6 @@
 package com.example.bluetoothtracker.domain.repository
 
+import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.domain.data.Device
 import kotlinx.coroutines.flow.Flow
 
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 * */
 interface BluetoothRepository {
     fun isBluetoothEnabled(): Boolean
-    fun getNearbyDevices(): Flow<List<Device>>
     fun startScan()
     fun stopScan()
+    fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>>
 }
