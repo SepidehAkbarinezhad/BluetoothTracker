@@ -5,7 +5,5 @@ data class Device(
     val macAddress: String,
     val rssi: Int,
     val lastSeen: Long,
-) {
-    val isOnline: Boolean
-        get() = System.currentTimeMillis() - lastSeen <= 2 * 60 * 1000  // 2 minutes
-}
+    val isOnline: Boolean = System.currentTimeMillis() - lastSeen <= 2 * 60 * 1000,
+)

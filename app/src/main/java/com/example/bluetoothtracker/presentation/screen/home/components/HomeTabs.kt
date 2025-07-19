@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.example.bluetoothtracker.presentation.components.AppText
 import com.example.bluetoothtracker.presentation.utils.Tabs
+import com.example.bluetoothtracker.presentation.utils.printLog
 
 @Composable
 fun HomeTabs(modifier: Modifier = Modifier, tabIndex: Int, onTabClicked: (Int) -> Unit) {
@@ -15,7 +16,9 @@ fun HomeTabs(modifier: Modifier = Modifier, tabIndex: Int, onTabClicked: (Int) -
         tabs.forEachIndexed { index, tab ->
             Tab(text = { AppText(text = tab.title, color = Color.White) },
                 selected = tabIndex == index,
-                onClick = { onTabClicked(index) }
+                onClick = {
+                    printLog("onClick $index")
+                    onTabClicked(index) }
             )
         }
     }

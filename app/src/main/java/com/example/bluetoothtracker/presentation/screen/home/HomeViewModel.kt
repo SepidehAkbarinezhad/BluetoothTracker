@@ -18,18 +18,23 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val bluetoothInteractor: BluetoothInteractor,
-    val bluetoothRepository: BluetoothRepository
 ) :
     ViewModel() {
 
     init {
         printLog("init vm")
+        //  viewModelScope.launch { bluetoothInteractor.insertScannedDeviceUseCase() }
         viewModelScope.launch {
             bluetoothInteractor.getAllDevicesUseCase().collect { list ->
-                printLog("getAllDevicesUseCase: $list", "listTag")
-                homeState.update { it.copy(devicesList = list) }
+                printLog("getAllDevicesUseCase: size ${list.size}", "uicheck")
+                printLog("getAllDevicesUseCase: $list", "uicheck")
+                val sortedList = list.sortedByDescending { item -> item.rssi }
+                homeState.update {
+                    it.copy(
+                        onLineDevicesList = sortedList.filter { list -> list.isOnline },
+                        offlineDevicesList = sortedList.filter { list -> !list.isOnline })
+                }
             }
-
         }
     }
 
@@ -65,10 +70,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startScan() {
+        printLog("vm startScan")
         bluetoothInteractor.startScnBluetooth()
     }
 
     fun stopScan() {
+        printLog("vm stopScan")
         bluetoothInteractor.stopScnBluetoothUseCase
     }
 

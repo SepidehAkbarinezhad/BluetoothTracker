@@ -1,7 +1,6 @@
 package com.example.bluetoothtracker.data.mapper
 
 import com.example.bluetoothtracker.data.model.ScannedDeviceEntity
-import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.domain.data.Device
 
 

@@ -8,5 +8,6 @@ data class HomeState(
     val showPermissionDeniedDialog : Boolean = false,
     val permissionGranted : Boolean? = null,
     val bluetoothState : Boolean? = null,
-    val devicesList : List<Device> = emptyList()
+    val onLineDevicesList : List<Device> = emptyList(),
+    val offlineDevicesList : List<Device> = emptyList()
 )

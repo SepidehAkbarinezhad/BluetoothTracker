@@ -6,6 +6,7 @@ import android.bluetooth.le.ScanCallback
 import android.content.Context
 import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
+import com.example.bluetoothtracker.di.ApplicationScope
 import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
 import jakarta.inject.Inject
@@ -24,6 +25,7 @@ import timber.log.Timber
 
 
 class BluetoothDeviceTrackerImpl @Inject constructor(
+    @ApplicationScope private val appScope: CoroutineScope,
     private val bluetoothAdapter: BluetoothAdapter?,
     private val scannedDeviceRepository : ScannedDeviceRepository
 ) : BluetoothDeviceTracker {
@@ -41,6 +43,7 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
     private var scanJob: Job? = null
     private val scanPeriod = 10_000L  // 10 seconds scan
     private val waitPeriod = 5_000L   // 5 seconds wait
+
 
     private val scanCallback = object : ScanCallback() {
 
@@ -80,10 +83,9 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
     @SuppressLint("MissingPermission")
     override fun startScan() {
         printLog("startDiscovery")
-
         // Cancel previous job if any
         scanJob?.cancel()
-        scanJob = CoroutineScope(Dispatchers.Main).launch {
+        scanJob = appScope.launch {
             while (isActive) {
                 // Start scanning
                 bluetoothLeScanner?.startScan(scanCallback)
@@ -100,9 +102,10 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
     private  suspend fun emitForInsertInRoom(){
         val resultList = scannedDeviceCache.values.toList()
-        printLog("emitForInsertInRoom result: ${resultList.size}","listTag")
+        printLog("1 emitForInsertInRoom result: ${resultList.size}","uicheck")
+        printLog("1 emitForInsertInRoom : $resultList","uicheck")
         scannedDeviceRepository.insertDeviceList(resultList)
-       // _scannedDevices.tryEmit(resultList)
+        /*_scannedDevices.emit(resultList)*/
         scannedDeviceCache.clear()
     }
 

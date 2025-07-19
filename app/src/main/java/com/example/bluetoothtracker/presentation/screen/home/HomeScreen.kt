@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalPermissionsApi::class)
-
 package com.example.bluetoothtracker.presentation.screen.home
 
 import androidx.compose.foundation.background
@@ -19,6 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bluetoothtracker.presentation.screen.home.components.HomeTabs
+import com.example.bluetoothtracker.presentation.screen.home.components.PermissionAlertDialog
+import com.example.bluetoothtracker.presentation.screen.home.components.PermissionDeniedDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.TabContent
 import com.example.bluetoothtracker.presentation.utils.printLog
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -54,17 +54,17 @@ fun HomeScreen(
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         HomeContent(state = state, onAction = onAction)
-        /* if (state.showPermissionAlertDialog) {
-             printLog("show permission alert dialog")
-             PermissionAlertDialog {
-                 onAction(HomeAction.ShowPermissionAlertDialog(false))
-                 onEvent(HomeEvent.RequestBluetoothPermission)
-             }
-         } else if (state.showPermissionDeniedDialog) {
-             PermissionDeniedDialog {
-                 onAction(HomeAction.ShowPermissionDeniedDialog(false))
-             }
-         }*/
+        if (state.showPermissionAlertDialog) {
+            printLog("show permission alert dialog")
+            PermissionAlertDialog {
+                onAction(HomeAction.ShowPermissionAlertDialog(false))
+                onEvent(HomeEvent.RequestBluetoothPermission)
+            }
+        } else if (state.showPermissionDeniedDialog) {
+            PermissionDeniedDialog {
+                onAction(HomeAction.ShowPermissionDeniedDialog(false))
+            }
+        }
     }
 
 }
@@ -86,7 +86,7 @@ fun HomeContent(
     ) {
 
         HomeTabs(tabIndex = tabIndex, onTabClicked = { index -> tabIndex = index })
-        TabContent(state = state, onAction = onAction)
+        TabContent(state = state, onAction = onAction, tabIndex = tabIndex)
 
     }
 }
