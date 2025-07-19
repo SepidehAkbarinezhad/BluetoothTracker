@@ -12,9 +12,9 @@ class InsertScannedDeviceUseCase @Inject constructor(
     private val dao: ScannedDeviceDao
 ) {
    suspend  operator fun invoke() {
-        printLog("startCollectingScansAndInsertToDb","sharedTag")
+        printLog("startCollectingScansAndInsertToDb")
        bluetoothRepository.scannedDevicesFlow().collect { deviceList ->
-            printLog("collect: $deviceList","sharedTag")
+            printLog("collect: $deviceList")
             dao.insertAll(deviceList.toEntityList())
         }
     }

@@ -21,15 +21,8 @@ class HomeViewModel @Inject constructor(private val bluetoothInteractor: Bluetoo
 
         init {
             printLog("init vm")
-            //viewModelScope.launch { bluetoothInteractor.insertScannedDeviceUseCase() }
-          /*  viewModelScope.launch { bluetoothRepository.scannedDevicesFlow().collect{ deviceList ->
-                printLog("collect: $deviceList","sharedTag")
-
-            } }*/
             viewModelScope.launch {
-                bluetoothInteractor.insertScannedDeviceUseCase()
                  bluetoothInteractor.getAllDevicesUseCase().collect{list->
-
                     printLog("getAllDevicesUseCase: $list")
                 }
 

@@ -2,6 +2,7 @@ package com.example.bluetoothtracker.data.datasource
 
 import com.example.bluetoothtracker.data.datasource.room.ScannedDeviceDao
 import com.example.bluetoothtracker.data.model.ScannedDeviceEntity
+import com.example.bluetoothtracker.presentation.utils.printLog
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
@@ -14,6 +15,7 @@ class ScannedDeviceLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun insertAll(deviceList: List<ScannedDeviceEntity>) {
+        printLog("insertDeviceList ScannedDeviceLocalDataSourceImpl")
         dao.insertAll(deviceList)
     }
 
