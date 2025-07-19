@@ -6,6 +6,7 @@ import com.example.bluetoothtracker.data.datasource.BluetoothDeviceTracker
 import com.example.bluetoothtracker.data.datasource.BluetoothDeviceTrackerImpl
 import com.example.bluetoothtracker.data.repoImpl.BluetoothRepositoryImpl
 import com.example.bluetoothtracker.domain.repository.BluetoothRepository
+import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,10 +29,10 @@ object BluetoothModule {
 
     @Provides
     fun provideBluetoothManager(
-        @ApplicationContext context: Context,
-        bluetoothAdapter: BluetoothAdapter?
+        bluetoothAdapter: BluetoothAdapter?,
+        scannedDeviceRepository: ScannedDeviceRepository
     ): BluetoothDeviceTracker {
-        return BluetoothDeviceTrackerImpl(context,bluetoothAdapter)
+        return BluetoothDeviceTrackerImpl(bluetoothAdapter,scannedDeviceRepository)
     }
 
     @Provides

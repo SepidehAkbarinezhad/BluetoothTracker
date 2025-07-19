@@ -20,12 +20,20 @@ class HomeViewModel @Inject constructor(private val bluetoothInteractor: Bluetoo
     ViewModel() {
 
         init {
-            printLog("initttt","sharedTag")
+            printLog("init vm")
             //viewModelScope.launch { bluetoothInteractor.insertScannedDeviceUseCase() }
-            viewModelScope.launch { bluetoothRepository.scannedDevicesFlow().collect{ deviceList ->
+          /*  viewModelScope.launch { bluetoothRepository.scannedDevicesFlow().collect{ deviceList ->
                 printLog("collect: $deviceList","sharedTag")
 
-            } }
+            } }*/
+            viewModelScope.launch {
+                bluetoothInteractor.insertScannedDeviceUseCase()
+                 bluetoothInteractor.getAllDevicesUseCase().collect{list->
+
+                    printLog("getAllDevicesUseCase: $list")
+                }
+
+            }
         }
     private val _event = MutableSharedFlow<HomeEvent>()
     val event = _event.asSharedFlow()

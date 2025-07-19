@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
 import android.content.Context
+import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
+import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
+import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,9 +24,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
-class BluetoothDeviceTrackerImpl(
-    private val context: Context,
-    private val bluetoothAdapter: BluetoothAdapter?
+class BluetoothDeviceTrackerImpl @Inject constructor(
+    private val bluetoothAdapter: BluetoothAdapter?,
+    private val scannedDeviceRepository : ScannedDeviceRepository
 ) :
     BluetoothDeviceTracker {
 
@@ -34,7 +37,7 @@ class BluetoothDeviceTrackerImpl(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val scannedDevices: SharedFlow<List<BluetoothScanResult>> = _scannedDevices.asSharedFlow()
+    val scannedDevices: SharedFlow<List<BluetoothScanResult>> = _scannedDevices
     private val scannedDeviceCache = mutableMapOf<String, BluetoothScanResult>()
 
     private var scanJob: Job? = null
@@ -108,7 +111,8 @@ class BluetoothDeviceTrackerImpl(
 
         val resultList = scannedDeviceCache.values.toList()
         printLog("result: $resultList")
-        _scannedDevices.emit(resultList)
+        scannedDeviceRepository.insertDeviceList(resultList)
+        //_scannedDevices.emit(resultList)
     }
 
     override fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>> = scannedDevices
