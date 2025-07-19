@@ -5,6 +5,7 @@ import com.example.bluetoothtracker.data.mapper.toDomainList
 import com.example.bluetoothtracker.data.mapper.toEntity
 import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
+import com.example.bluetoothtracker.domain.data.Device
 import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
 import jakarta.inject.Inject
@@ -24,7 +25,7 @@ class ScannedDeviceRepositoryImpl @Inject constructor(
         localDataSource.insertAll(deviceList.toEntityList())
     }
 
-    override fun getAllDevices(): Flow<List<BluetoothScanResult>> {
+    override fun getAllDevices(): Flow<List<Device>> {
         return localDataSource.getAll().map {list->list.toDomainList() }
     }
 

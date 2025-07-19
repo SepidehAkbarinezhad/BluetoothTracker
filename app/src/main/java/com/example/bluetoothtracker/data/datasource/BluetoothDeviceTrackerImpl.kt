@@ -18,7 +18,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -27,8 +26,7 @@ import timber.log.Timber
 class BluetoothDeviceTrackerImpl @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter?,
     private val scannedDeviceRepository : ScannedDeviceRepository
-) :
-    BluetoothDeviceTracker {
+) : BluetoothDeviceTracker {
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
@@ -99,20 +97,20 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         }
     }
 
+
+    private  suspend fun emitForInsertInRoom(){
+        val resultList = scannedDeviceCache.values.toList()
+        printLog("emitForInsertInRoom result: ${resultList.size}","listTag")
+        scannedDeviceRepository.insertDeviceList(resultList)
+       // _scannedDevices.tryEmit(resultList)
+        scannedDeviceCache.clear()
+    }
+
     @SuppressLint("MissingPermission")
     override fun stopScan() {
         printLog("stopDiscovery")
         scanJob?.cancel()
         bluetoothLeScanner?.stopScan(scanCallback)
-    }
-
-    private suspend fun emitForInsertInRoom(){
-        printLog("emitForInsertInRoom","sharedTag")
-
-        val resultList = scannedDeviceCache.values.toList()
-        printLog("result: $resultList")
-        scannedDeviceRepository.insertDeviceList(resultList)
-        //_scannedDevices.emit(resultList)
     }
 
     override fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>> = scannedDevices
