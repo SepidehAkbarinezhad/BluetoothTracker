@@ -1,7 +1,7 @@
 package com.example.bluetoothtracker.data.repoImpl
 
 import com.example.bluetoothtracker.data.datasource.ScannedDeviceLocalDataSource
-import com.example.bluetoothtracker.data.mapper.toDomain
+import com.example.bluetoothtracker.data.mapper.toDomainList
 import com.example.bluetoothtracker.data.mapper.toEntity
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
@@ -17,7 +17,7 @@ class ScannedDeviceRepositoryImpl(
     }
 
     override fun getAllDevices(): Flow<List<BluetoothScanResult>> {
-        return localDataSource.getAll().map { list -> list.map { device -> device.toDomain() } }
+        return localDataSource.getAll().map {list->list.toDomainList() }
     }
 
     override suspend fun deleteAllDevices() {

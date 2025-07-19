@@ -12,6 +12,9 @@ interface ScannedDeviceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(device: ScannedDeviceEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(devices: List<ScannedDeviceEntity>)
+
     @Query("SELECT * FROM bluetooth_devices")
     fun getAll(): Flow<List<ScannedDeviceEntity>>
 

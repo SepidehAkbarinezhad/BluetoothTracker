@@ -1,12 +1,23 @@
 package com.example.bluetoothtracker.domain.usecase
 
-import com.example.bluetoothtracker.data.model.BluetoothScanResult
-import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
+import com.example.bluetoothtracker.data.datasource.BluetoothDeviceTracker
+import com.example.bluetoothtracker.data.datasource.room.ScannedDeviceDao
+import com.example.bluetoothtracker.data.mapper.toEntityList
+import com.example.bluetoothtracker.presentation.utils.printLog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class InsertScannedDeviceUseCase(
-    private val repository: ScannedDeviceRepository
+class InsertScannedDeviceUseCase @Inject constructor(
+     val tracker: BluetoothDeviceTracker,
+     val dao: ScannedDeviceDao
 ) {
-    suspend operator fun invoke(device: BluetoothScanResult) {
-        repository.insertDevice(device)
+    operator fun invoke(): Job = CoroutineScope(Dispatchers.IO).launch {
+        printLog("startCollectingScansAndInsertToDb")
+        tracker.scannedDevicesFlow().collect { deviceList ->
+            dao.insertAll(deviceList.toEntityList())
+        }
     }
 }

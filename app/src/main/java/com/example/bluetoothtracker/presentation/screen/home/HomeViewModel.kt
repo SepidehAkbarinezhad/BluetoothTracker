@@ -17,6 +17,9 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(private val bluetoothInteractor: BluetoothInteractor) :
     ViewModel() {
 
+        init {
+            bluetoothInteractor.insertScannedDeviceUseCase()
+        }
     private val _event = MutableSharedFlow<HomeEvent>()
     val event = _event.asSharedFlow()
 

@@ -12,11 +12,6 @@ fun BluetoothScanResult.toEntity(): ScannedDeviceEntity = with(this) {
     )
 }
 
-fun ScannedDeviceEntity.toDomain(): BluetoothScanResult = with(this) {
-    BluetoothScanResult(
-        macAddress = macAddress,
-        name = name ?: "",
-        rssi = rssi,
-        lastSeen = lastSeen
-    )
-}
+fun List<BluetoothScanResult>.toEntityList(): List<ScannedDeviceEntity> = this.map {result->result.toEntity()}
+
+
