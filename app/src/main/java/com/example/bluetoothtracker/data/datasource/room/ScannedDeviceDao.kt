@@ -8,7 +8,7 @@ import com.example.bluetoothtracker.data.model.ScannedDeviceEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface BScannedDeviceDao {
+interface ScannedDeviceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(device: ScannedDeviceEntity)
 

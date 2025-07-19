@@ -1,11 +1,11 @@
 package com.example.bluetoothtracker.data.datasource
 
-import com.example.bluetoothtracker.data.datasource.room.BScannedDeviceDao
+import com.example.bluetoothtracker.data.datasource.room.ScannedDeviceDao
 import com.example.bluetoothtracker.data.model.ScannedDeviceEntity
 import kotlinx.coroutines.flow.Flow
 
 class ScannedDeviceLocalDataSourceImpl(
-    private val dao: BScannedDeviceDao
+    private val dao: ScannedDeviceDao
 ) : ScannedDeviceLocalDataSource {
 
     override suspend fun insert(device: ScannedDeviceEntity) {

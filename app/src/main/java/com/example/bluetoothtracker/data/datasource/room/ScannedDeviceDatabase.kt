@@ -8,5 +8,5 @@ import com.example.bluetoothtracker.data.model.ScannedDeviceEntity
 @Database(entities = [ScannedDeviceEntity::class], version = 1, exportSchema = false)
 abstract class ScannedDeviceDatabase : RoomDatabase() {
 
-    abstract fun movieDao(): BScannedDeviceDao
+    abstract fun deviceDao(): ScannedDeviceDao
 }
