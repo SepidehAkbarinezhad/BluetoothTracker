@@ -86,12 +86,6 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         // Cancel previous job if any
         scanJob?.cancel()
         
-        // Emit an initial empty list to test the flow connection
-        appScope.launch {
-            printLog("Emitting initial test value to verify flow connection", "emission_debug")
-            _scannedDevices.emit(emptyList())
-        }
-        
         scanJob = appScope.launch {
             while (isActive) {
                 // Start scanning

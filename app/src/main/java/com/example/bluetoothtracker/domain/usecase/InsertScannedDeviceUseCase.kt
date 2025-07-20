@@ -14,7 +14,16 @@ class InsertScannedDeviceUseCase @Inject constructor(
     private val bluetoothRepository: BluetoothRepository,
     private val scannedDeviceRepository: ScannedDeviceRepository
 ) {
+    
+    private var collectionJob: Job? = null
+    
     operator fun invoke() {
+        // Prevent multiple collections
+        if (collectionJob?.isActive == true) {
+            printLog("Collection already active, skipping", "usecase_debug")
+            return
+        }
+        
         printLog("startCollectingScansAndInsertToDb", "usecase_debug")
         
         // Test the repository connection first
@@ -22,9 +31,9 @@ class InsertScannedDeviceUseCase @Inject constructor(
         printLog("Successfully got scannedDevicesFlow from repository: $flow", "usecase_debug")
         
         // Launch collection in the application scope to keep it running
-        appScope.launch(Dispatchers.IO) {
+        collectionJob = appScope.launch(Dispatchers.IO) {
             try {
-                printLog("Starting to collect from scannedDevicesFlow", "usecase_debug")
+                printLog("Starting to collect from scannedDevicesFlow - COLLECTOR IS NOW ACTIVE", "usecase_debug")
                 bluetoothRepository.scannedDevicesFlow().collect { deviceList ->
                     printLog("2 collect: ${deviceList.size} devices", "usecase_debug")
                     printLog("2 collect devices: $deviceList", "usecase_debug")

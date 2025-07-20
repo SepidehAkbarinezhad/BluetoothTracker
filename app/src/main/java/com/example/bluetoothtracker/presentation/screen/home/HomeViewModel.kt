@@ -23,7 +23,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         printLog("init vm")
-        // Start collecting scanned devices and inserting them to the database
+        // Start collecting scanned devices and inserting them to the database FIRST
         bluetoothInteractor.insertScannedDeviceUseCase()
         viewModelScope.launch {
             bluetoothInteractor.getAllDevicesUseCase().collect { list ->
