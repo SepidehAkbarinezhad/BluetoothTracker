@@ -31,10 +31,16 @@ class InsertScannedDeviceUseCase @Inject constructor(
         printLog("Successfully got scannedDevicesFlow from repository: $flow", "usecase_debug")
         
         // Launch collection in the application scope to keep it running
+        printLog("About to launch collection coroutine", "usecase_debug")
         collectionJob = appScope.launch(Dispatchers.IO) {
+            printLog("INSIDE collection coroutine - coroutine started", "usecase_debug")
             try {
-                printLog("Starting to collect from scannedDevicesFlow - COLLECTOR IS NOW ACTIVE", "usecase_debug")
-                bluetoothRepository.scannedDevicesFlow().collect { deviceList ->
+                printLog("About to get scannedDevicesFlow", "usecase_debug")
+                val flow = bluetoothRepository.scannedDevicesFlow()
+                printLog("Got flow: $flow", "usecase_debug")
+                
+                printLog("About to start collecting - COLLECTOR IS NOW ACTIVE", "usecase_debug")
+                flow.collect { deviceList ->
                     printLog("2 collect: ${deviceList.size} devices", "usecase_debug")
                     printLog("2 collect devices: $deviceList", "usecase_debug")
                     if (deviceList.isNotEmpty()) {
@@ -46,7 +52,9 @@ class InsertScannedDeviceUseCase @Inject constructor(
                 }
             } catch (e: Exception) {
                 printLog("Error in collection: ${e.message}", "usecase_debug")
+                printLog("Exception stacktrace: ${e.stackTrace.contentToString()}", "usecase_debug")
             }
         }
+        printLog("Collection coroutine launched, job: $collectionJob", "usecase_debug")
     }
 }
