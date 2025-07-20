@@ -23,6 +23,7 @@ import jakarta.inject.Singleton
 object DatabaseModule {
 
     @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext context: Context): ScannedDeviceDatabase {
         return Room.databaseBuilder(
             context,
@@ -32,16 +33,19 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun provideBluetoothDeviceDao(db: ScannedDeviceDatabase): ScannedDeviceDao {
         return db.deviceDao()
     }
 
     @Provides
+    @Singleton
     fun provideScannedDeviceRepository(
         localDataSource: ScannedDeviceLocalDataSource
     ): ScannedDeviceRepository = ScannedDeviceRepositoryImpl(localDataSource)
 
     @Provides
+    @Singleton
     fun provideScannedDeviceLocalDataSource(
         dao: ScannedDeviceDao
     ): ScannedDeviceLocalDataSource = ScannedDeviceLocalDataSourceImpl(dao)
