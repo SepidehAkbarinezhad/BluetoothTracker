@@ -22,12 +22,9 @@ class HomeViewModel @Inject constructor(
     ViewModel() {
 
     init {
-        printLog("init vm")
         bluetoothInteractor.insertScannedDeviceUseCase()
         viewModelScope.launch {
             bluetoothInteractor.getAllDevicesUseCase().collect { list ->
-                printLog("getAllDevicesUseCase: size ${list.size}", "checkDebug")
-                printLog("getAllDevicesUseCase: $list", "checkDebug")
                 val sortedList = list.sortedByDescending { item -> item.rssi }
                 homeState.update {
                     it.copy(
@@ -52,20 +49,12 @@ class HomeViewModel @Inject constructor(
 
     fun onAction(action: HomeAction) {
         when (action) {
-            is HomeAction.ShowPermissionAlertDialog -> homeState.update {
-                it.copy(
-                    showPermissionAlertDialog = action.show
-                )
-            }
-
-            is HomeAction.ShowPermissionDeniedDialog -> homeState.update {
-                it.copy(
-                    showPermissionDeniedDialog = action.show
-                )
-            }
-
+            is HomeAction.ShowPermissionAlertDialog -> homeState.update { it.copy(showPermissionAlertDialog = action.show) }
+            is HomeAction.ShowPermissionDeniedDialog -> homeState.update { it.copy(showPermissionDeniedDialog = action.show) }
+            is HomeAction.ShowBluetoothAlertDialog -> homeState.update { it.copy(showBluetoothStateDialog = action.show) }
             is HomeAction.OnPermissionGrantedChange -> homeState.update { it.copy(permissionGranted = action.permissionGranted) }
             is HomeAction.OnBluetoothStateChange -> homeState.update { it.copy(bluetoothState = action.bluetoothState) }
+
         }
     }
 

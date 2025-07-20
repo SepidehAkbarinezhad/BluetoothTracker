@@ -10,7 +10,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.bluetoothtracker.presentation.common.BluetoothStateObserver
@@ -60,22 +63,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         initObservers()
         addPermissionObserver()
-        lifecycleScope.launch{
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.event.collect { event ->
-                    when (event) {
-                        HomeEvent.RequestBluetoothPermission -> {
-                            permissionManager.requestBluetoothPermissions()
-                        }
-                        HomeEvent.RequestEnableBluetooth -> {
-                            bluetoothStateObserver.requestEnableBluetooth()
-                        }
-                    }
-                }
-            }
-        }
+
         enableEdgeToEdge()
         setContent {
+            val event by viewModel.event.collectAsStateWithLifecycle(null)
+            LaunchedEffect(event) {
+                when (event) {
+                    is HomeEvent.RequestBluetoothPermission -> {
+                        printLog("HomeEvent.RequestBluetoothPermission -> ", "bleCheck")
+                        permissionManager.requestBluetoothPermissions()
+                    }
+                    is HomeEvent.RequestEnableBluetooth -> {
+                        printLog(" HomeEvent.RequestEnableBluetooth ->", "bleCheck")
+                        bluetoothStateObserver.requestEnableBluetooth()
+                    }
+                    else -> {}
+                }
+            }
             BluetoothTrackerTheme {
                 HomeScreenRoot(viewModel = viewModel)
             }
@@ -83,7 +87,7 @@ class MainActivity : ComponentActivity() {
     }
 
 
-    private fun initObservers(){
+    private fun initObservers() {
         permissionManager = PermissionManager(
             activity = this,
             onUpdatePermissionState = { hasPermission ->
@@ -111,7 +115,8 @@ class MainActivity : ComponentActivity() {
             }
         )
     }
-    private fun addPermissionObserver(){
+
+    private fun addPermissionObserver() {
         lifecycle.addObserver(permissionManager)
     }
 

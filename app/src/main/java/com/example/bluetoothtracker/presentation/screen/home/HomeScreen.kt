@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.bluetoothtracker.presentation.screen.home.components.BluetoothStateAlertDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.HomeTabs
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionAlertDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionDeniedDialog
@@ -30,10 +31,12 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
     LaunchedEffect(key1 = state.permissionGranted, key2 = state.bluetoothState) {
         printLog("LaunchedEffect  $state")
         if (state.permissionGranted == true && state.bluetoothState == true) {
-            printLog("LaunchedEffect permissions granted ")
+            printLog("LaunchedEffect permissions granted ", "bleCheck")
             viewModel.startScan()
         } else if (state.permissionGranted == false || state.bluetoothState == false) {
+            printLog("else if", "bleCheck")
             viewModel.stopScan()
+            viewModel.onAction(HomeAction.ShowBluetoothAlertDialog(true))
         }
     }
 
@@ -58,11 +61,16 @@ fun HomeScreen(
             PermissionAlertDialog(onConfirm = {
                 onAction(HomeAction.ShowPermissionAlertDialog(false))
                 onEvent(HomeEvent.RequestBluetoothPermission)
-            }, onDismissRequest = {onAction(HomeAction.ShowPermissionAlertDialog(false))})
+            }, onDismissRequest = { onAction(HomeAction.ShowPermissionAlertDialog(false)) })
         } else if (state.showPermissionDeniedDialog) {
             PermissionDeniedDialog {
                 onAction(HomeAction.ShowPermissionDeniedDialog(false))
             }
+        } else if (state.showBluetoothStateDialog) {
+            BluetoothStateAlertDialog(
+                onConfirm = { onEvent(HomeEvent.RequestEnableBluetooth) },
+                onDismissRequest = { onAction(HomeAction.ShowBluetoothAlertDialog(false))}
+            )
         }
     }
 
