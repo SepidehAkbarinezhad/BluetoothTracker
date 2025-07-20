@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
+@Singleton
 class BluetoothDeviceTrackerImpl @Inject constructor(
     @ApplicationScope private val appScope: CoroutineScope,
     private val bluetoothAdapter: BluetoothAdapter?,
