@@ -27,6 +27,7 @@ annotation class ApplicationScope
 object BluetoothModule {
 
     @Provides
+    @Singleton
     @ApplicationScope
     fun provideApplicationScope(): CoroutineScope {
         return CoroutineScope(SupervisorJob() + Dispatchers.Default)

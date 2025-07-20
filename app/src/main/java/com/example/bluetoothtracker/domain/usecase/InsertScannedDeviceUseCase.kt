@@ -7,7 +7,7 @@ import com.example.bluetoothtracker.presentation.utils.printLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 class InsertScannedDeviceUseCase @Inject constructor(
     @ApplicationScope private val appScope: CoroutineScope,
