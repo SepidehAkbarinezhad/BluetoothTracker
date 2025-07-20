@@ -3,7 +3,7 @@ package com.example.bluetoothtracker.data.repoImpl
 import com.example.bluetoothtracker.data.datasource.BluetoothDeviceTracker
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.domain.repository.BluetoothRepository
-import jakarta.inject.Inject
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 class BluetoothRepositoryImpl @Inject constructor(private val bluetoothManager: BluetoothDeviceTracker) :
