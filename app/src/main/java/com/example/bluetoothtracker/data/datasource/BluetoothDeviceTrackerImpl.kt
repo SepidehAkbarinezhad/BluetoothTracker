@@ -37,7 +37,7 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
-    val scannedDevices: SharedFlow<List<BluetoothScanResult>> = _scannedDevices
+    val scannedDevices: SharedFlow<List<BluetoothScanResult>> = _scannedDevices.asSharedFlow()
     private val scannedDeviceCache = mutableMapOf<String, BluetoothScanResult>()
 
     private var scanJob: Job? = null
@@ -85,6 +85,13 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         printLog("startDiscovery")
         // Cancel previous job if any
         scanJob?.cancel()
+        
+        // Emit an initial empty list to test the flow connection
+        appScope.launch {
+            printLog("Emitting initial test value to verify flow connection", "emission_debug")
+            _scannedDevices.emit(emptyList())
+        }
+        
         scanJob = appScope.launch {
             while (isActive) {
                 // Start scanning
