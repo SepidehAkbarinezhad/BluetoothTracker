@@ -22,43 +22,46 @@ class InsertScannedDeviceUseCase @Inject constructor(
     private var collectionJob: Job? = null
     
     operator fun invoke() {
+        printLog("=== USECASE INVOKE STARTED ===", "checkDebug")
+        
         // Prevent multiple collections
         if (collectionJob?.isActive == true) {
-            printLog("Collection already active, skipping", "usecase_debug")
+            printLog("Collection already active, skipping", "checkDebug")
             return
         }
         
-        printLog("startCollectingScansAndInsertToDb", "usecase_debug")
+        printLog("startCollectingScansAndInsertToDb2 ${appScope.isActive}", "checkDebug")
         
         // Test the repository connection first
         val flow = bluetoothRepository.scannedDevicesFlow()
-        printLog("Successfully got scannedDevicesFlow from repository: $flow", "usecase_debug")
+        printLog("Successfully got scannedDevicesFlow from repository: $flow", "checkDebug")
         
         // Launch collection in the application scope to keep it running
-        printLog("About to launch collection coroutine", "usecase_debug")
+        printLog("About to launch collection coroutine", "checkDebug")
         collectionJob = appScope.launch(Dispatchers.IO) {
-            printLog("INSIDE collection coroutine - coroutine started", "usecase_debug")
+            printLog("🚀 INSIDE COROUTINE - COROUTINE STARTED!", "checkDebug")
             try {
-                printLog("About to get scannedDevicesFlow", "usecase_debug")
-                val flow = bluetoothRepository.scannedDevicesFlow()
-                printLog("Got flow: $flow", "usecase_debug")
+                printLog("About to get scannedDevicesFlow", "checkDebug")
+                val flowInside = bluetoothRepository.scannedDevicesFlow()
+                printLog("Got flow inside coroutine: $flowInside", "checkDebug")
                 
-                printLog("About to start collecting - COLLECTOR IS NOW ACTIVE", "usecase_debug")
-                flow.collect { deviceList ->
-                    printLog("2 collect: ${deviceList.size} devices", "usecase_debug")
-                    printLog("2 collect devices: $deviceList", "usecase_debug")
+                printLog("🎯 ABOUT TO START COLLECTING - COLLECTOR IS NOW ACTIVE!", "checkDebug")
+                flowInside.collect { deviceList ->
+                    printLog("🎉 COLLECT SUCCESS: ${deviceList.size} devices", "checkDebug")
+                    printLog("🎉 COLLECT DEVICES: $deviceList", "checkDebug")
                     if (deviceList.isNotEmpty()) {
                         scannedDeviceRepository.insertDeviceList(deviceList)
-                        printLog("Successfully inserted ${deviceList.size} devices to database", "usecase_debug")
+                        printLog("✅ Successfully inserted ${deviceList.size} devices to database", "checkDebug")
                     } else {
-                        printLog("Received empty device list from SharedFlow", "usecase_debug")
+                        printLog("📭 Received empty device list from SharedFlow", "checkDebug")
                     }
                 }
             } catch (e: Exception) {
-                printLog("Error in collection: ${e.message}", "usecase_debug")
-                printLog("Exception stacktrace: ${e.stackTrace.contentToString()}", "usecase_debug")
+                printLog("❌ Error in collection: ${e.message}", "checkDebug")
+                printLog("❌ Exception stacktrace: ${e.stackTrace.contentToString()}", "checkDebug")
             }
         }
-        printLog("Collection coroutine launched, job: $collectionJob", "usecase_debug")
+        printLog("Collection coroutine launched, job: $collectionJob", "checkDebug")
+        printLog("=== USECASE INVOKE FINISHED ===", "checkDebug")
     }
 }
