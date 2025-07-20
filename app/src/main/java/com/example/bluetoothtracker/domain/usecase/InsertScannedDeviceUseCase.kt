@@ -6,14 +6,18 @@ import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class InsertScannedDeviceUseCase @Inject constructor(
-    @ApplicationScope private val appScope: CoroutineScope,
     private val bluetoothRepository: BluetoothRepository,
     private val scannedDeviceRepository: ScannedDeviceRepository
 ) {
+    
+    // Use GlobalScope temporarily to test if injection was the issue
+    private val appScope: CoroutineScope = GlobalScope
     
     private var collectionJob: Job? = null
     
