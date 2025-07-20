@@ -87,6 +87,11 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         scanJob?.cancel()
         
         scanJob = appScope.launch {
+            // Wait 5 seconds to ensure collector is definitely running
+            printLog("Waiting 5 seconds to ensure collector is ready...", "emission_debug")
+            delay(5000)
+            printLog("5 seconds passed, starting actual scanning now", "emission_debug")
+            
             while (isActive) {
                 // Start scanning
                 bluetoothLeScanner?.startScan(scanCallback)
