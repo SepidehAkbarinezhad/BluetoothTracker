@@ -14,13 +14,18 @@ class InsertScannedDeviceUseCase @Inject constructor(
     private val bluetoothRepository: BluetoothRepository,
     private val scannedDeviceRepository: ScannedDeviceRepository
 ) {
-     suspend  operator fun invoke() {
-        printLog("startCollectingScansAndInsertToDb")
-
-           bluetoothRepository.scannedDevicesFlow().collect { deviceList ->
-               printLog("2 collect: $deviceList")
-               scannedDeviceRepository.insertDeviceList(deviceList)
-           }
-
+    operator fun invoke() {
+        printLog("startCollectingScansAndInsertToDb", "usecase_debug")
+        
+        // Launch collection in the application scope to keep it running
+        appScope.launch(Dispatchers.IO) {
+            printLog("Starting to collect from scannedDevicesFlow", "usecase_debug")
+            bluetoothRepository.scannedDevicesFlow().collect { deviceList ->
+                printLog("2 collect: ${deviceList.size} devices", "usecase_debug")
+                printLog("2 collect devices: $deviceList", "usecase_debug")
+                scannedDeviceRepository.insertDeviceList(deviceList)
+                printLog("Successfully inserted ${deviceList.size} devices to database", "usecase_debug")
+            }
+        }
     }
 }

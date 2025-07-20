@@ -104,8 +104,14 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         val resultList = scannedDeviceCache.values.toList()
         printLog("1 emitForInsertInRoom result: ${resultList.size}","uicheck")
         printLog("1 emitForInsertInRoom : $resultList","uicheck")
-        // Emit to the SharedFlow so other collectors can receive the data
+        
+        // Emit to the SharedFlow so UseCase can collect and insert to database
+        printLog("About to emit to SharedFlow with ${resultList.size} devices", "emission_debug")
         _scannedDevices.emit(resultList)
+        printLog("Successfully emitted to SharedFlow", "emission_debug")
+        
+        // Comment out direct database insertion - let the UseCase handle it
+        // scannedDeviceRepository.insertDeviceList(resultList)
         scannedDeviceCache.clear()
     }
 
