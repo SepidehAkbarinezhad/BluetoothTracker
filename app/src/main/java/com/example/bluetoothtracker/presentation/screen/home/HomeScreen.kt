@@ -21,7 +21,6 @@ import com.example.bluetoothtracker.presentation.screen.home.components.Permissi
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionDeniedDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.TabContent
 import com.example.bluetoothtracker.presentation.utils.printLog
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 @Composable
 fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
@@ -56,10 +55,10 @@ fun HomeScreen(
         HomeContent(state = state, onAction = onAction)
         if (state.showPermissionAlertDialog) {
             printLog("show permission alert dialog")
-            PermissionAlertDialog {
+            PermissionAlertDialog(onConfirm = {
                 onAction(HomeAction.ShowPermissionAlertDialog(false))
                 onEvent(HomeEvent.RequestBluetoothPermission)
-            }
+            }, onDismissRequest = {onAction(HomeAction.ShowPermissionAlertDialog(false))})
         } else if (state.showPermissionDeniedDialog) {
             PermissionDeniedDialog {
                 onAction(HomeAction.ShowPermissionDeniedDialog(false))

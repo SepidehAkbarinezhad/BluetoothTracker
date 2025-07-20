@@ -6,17 +6,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.bluetoothtracker.R
 import com.example.bluetoothtracker.presentation.components.AppDialog
@@ -24,7 +18,6 @@ import com.example.bluetoothtracker.presentation.components.AppRowButtons
 import com.example.bluetoothtracker.presentation.components.AppText
 import com.example.bluetoothtracker.presentation.components.DialogModel
 import com.example.bluetoothtracker.presentation.utils.TextType
-import com.example.bluetoothtracker.ui.theme.BluetoothTrackerTheme
 
 @Composable
 fun PermissionAlertDialog(onConfirm: () -> Unit, onDismissRequest: () -> Unit) {
@@ -47,39 +40,32 @@ fun PermissionAlertContent(
     onConfirm: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    Dialog(onDismissRequest = {}) {
-        Card(
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                AppText(
-                    modifier = Modifier.padding(4.dp),
-                    text = R.string.permission_alert_title_dialog,
-                    textType = TextType.SubTitle
-                )
-                AppText(
-                    text = R.string.permission_alert_dialog,
-                    textType = TextType.Body,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                AppRowButtons(
-                    firstButtonTitle = R.string.grant_permission_btn_label,
-                    onFirstButtonClick =
-                    onConfirm,
-                    secondButtonTitle = R.string.dismiss_permission_btn_label,
-                    onSecondButtonClick = onDismissRequest
-                )
-
-            }
-        }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        AppText(
+            modifier = Modifier.padding(4.dp),
+            text = R.string.permission_alert_title_dialog,
+            textType = TextType.SubTitle
+        )
+        AppText(
+            text = R.string.permission_alert_dialog,
+            textType = TextType.Body,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        AppRowButtons(
+            firstButtonTitle = R.string.grant_permission_btn_label,
+            onFirstButtonClick =
+            onConfirm,
+            secondButtonTitle = R.string.dismiss_permission_btn_label,
+            onSecondButtonClick = onDismissRequest
+        )
 
     }
 }
+
 

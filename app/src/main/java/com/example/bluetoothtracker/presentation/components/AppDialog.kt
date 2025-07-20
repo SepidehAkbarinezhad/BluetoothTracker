@@ -23,7 +23,7 @@ fun AppDialog(
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
-                Box(modifier = Modifier.padding(12.dp)) {
+                Box(modifier = Modifier.padding(8.dp)) {
                     content()
                 }
             }

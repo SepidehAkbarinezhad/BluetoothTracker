@@ -24,13 +24,13 @@ import com.example.bluetoothtracker.presentation.utils.TextType
 fun AppButton(
     text: Int,
     onClick: () -> Unit,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
+    colors: ButtonColors = ButtonDefaults.buttonColors(containerColor = Color.Black),
     textColor: Color = Color.White,
     border: BorderStroke? = null,
     modifier: Modifier = Modifier
 ) {
     Button(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(size = 8.dp),
         onClick = onClick,
         colors = colors,
