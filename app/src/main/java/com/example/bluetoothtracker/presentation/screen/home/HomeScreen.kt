@@ -68,7 +68,9 @@ fun HomeScreen(
             }
         } else if (state.showBluetoothStateDialog) {
             BluetoothStateAlertDialog(
-                onConfirm = { onEvent(HomeEvent.RequestEnableBluetooth) },
+                onConfirm = {
+                    printLog("initilizaBug onConfirm", "bleCheck")
+                    onEvent(HomeEvent.RequestEnableBluetooth) },
                 onDismissRequest = { onAction(HomeAction.ShowBluetoothAlertDialog(false))}
             )
         }

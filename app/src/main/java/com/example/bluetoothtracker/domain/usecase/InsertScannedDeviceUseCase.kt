@@ -24,7 +24,7 @@ class InsertScannedDeviceUseCase @Inject constructor(
                 scannedDeviceRepository.insertDeviceList(deviceList)
             }
 
-        }.invokeOnCompletion { handler-> printLog("handler ${handler==null}  ${handler?.message}") }
+        }
 
     }
 }

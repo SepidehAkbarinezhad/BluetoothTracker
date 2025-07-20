@@ -1,5 +1,6 @@
 package com.example.bluetoothtracker.presentation.common
 
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.bluetoothtracker.presentation.utils.printLog
@@ -14,17 +16,17 @@ import com.example.bluetoothtracker.presentation.utils.printLog
 class BluetoothStateObserver(
     private val activity: ComponentActivity,
     var btAdapter: BluetoothAdapter?,
-    private val btEnableResultLauncher: ActivityResultLauncher<Intent>,
-    private val onBluetoothState: (Boolean) -> Unit,
+    private val onBluetoothStateChange: (Boolean) -> Unit,
 ) : DefaultLifecycleObserver {
 
     private lateinit var broadcastReceiver: BroadcastReceiver
+    private lateinit var btEnableResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(owner: LifecycleOwner) {
         printLog("BluetoothStateObserver oncreate")
         super.onCreate(owner)
+        registerBluetoothLauncher()
         createBroadcastReceiver()
-        onBluetoothState(btAdapter?.isEnabled == true)
     }
 
     override fun onStart(owner: LifecycleOwner) {
@@ -43,6 +45,22 @@ class BluetoothStateObserver(
         }
     }
 
+    private fun registerBluetoothLauncher() {
+        activity.registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                printLog("Activity.RESULT_OK")
+                onBluetoothStateChange(true)
+            } else {
+                printLog("Activity.RESULT_NOT_OK")
+                onBluetoothStateChange( false)
+            }
+        }
+    }
+
+    fun updateBluetoothState()  = onBluetoothStateChange(btAdapter?.isEnabled == true)
+
     /*
     * launches a system dialog that prompts the user
     * to enable Bluetooth using an intent with ACTION_REQUEST_ENABLE.
@@ -50,7 +68,7 @@ class BluetoothStateObserver(
     * callback registered in registerBluetoothLauncher().
     * */
     fun requestEnableBluetooth() {
-        printLog("requestEnableBluetooth", "bleCheck")
+        printLog("initilizaBug requestEnableBluetooth", "bleCheck")
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         btEnableResultLauncher.launch(intent)
     }
@@ -70,12 +88,12 @@ class BluetoothStateObserver(
                     when (btAdapter?.state) {
                         BluetoothAdapter.STATE_OFF -> {
                             printLog("STATE_OFF", "bleCheck")
-                            onBluetoothState(false)
+                            onBluetoothStateChange(false)
                         }
 
                         BluetoothAdapter.STATE_ON -> {
                             printLog("STATE_ON", "bleCheck")
-                            onBluetoothState(true)
+                            onBluetoothStateChange(true)
                         }
                     }
                 }
