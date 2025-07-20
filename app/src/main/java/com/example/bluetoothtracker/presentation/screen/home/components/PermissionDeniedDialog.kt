@@ -39,7 +39,7 @@ fun PermissionDeniedDialogContent(
     onConfirm: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally

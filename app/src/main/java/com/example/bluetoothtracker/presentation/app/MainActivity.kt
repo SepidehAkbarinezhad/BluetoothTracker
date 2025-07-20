@@ -41,13 +41,16 @@ class MainActivity : ComponentActivity() {
             val event by viewModel.event.collectAsStateWithLifecycle(null)
             LaunchedEffect(event) {
                 when (event) {
+                    is HomeEvent.UpdateBluetoothState -> {
+                        printLog("HomeEvent.UpdateBluetoothState ->")
+                        bluetoothStateObserver.updateBluetoothState()}
                     is HomeEvent.RequestBluetoothPermission -> {
-                        printLog("HomeEvent.RequestBluetoothPermission -> ", "bleCheck")
+                        printLog("HomeEvent.RequestBluetoothPermission -> ")
                         permissionManager.requestBluetoothPermissions()
                     }
 
                     is HomeEvent.RequestEnableBluetooth -> {
-                        printLog("initilizaBug HomeEvent.RequestEnableBluetooth ->", "bleCheck")
+                        printLog("HomeEvent.RequestEnableBluetooth ->")
                         bluetoothStateObserver.requestEnableBluetooth()
                     }
 
@@ -62,52 +65,38 @@ class MainActivity : ComponentActivity() {
 
 
     private fun initObservers() {
-        printLog("initilizaBug initObservers")
+        printLog("initObservers")
         bluetoothStateObserver = BluetoothStateObserver(
             activity = this,
             btAdapter = bluetoothAdapter,
             onBluetoothStateChange = { isEnabled ->
-                viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = isEnabled))
+                viewModel.onAction(HomeAction.BluetoothStateChange(bluetoothState = isEnabled))
             },
         )
         permissionManager = PermissionManager(
             activity = this,
             onUpdatePermissionState = { hasPermission ->
-                if (hasPermission) {
-                    printLog("initilizaBug hasPermission", "bleCheck")
-                    viewModel.onAction((HomeAction.OnPermissionGrantedChange(permissionGranted = true)))
-                    //update bluetooth state just when permissions are granted
-                    bluetoothStateObserver.updateBluetoothState()
-                } else {
-                    // Show UI: "Bluetooth features won't work without permission"
-                    viewModel.onAction(HomeAction.ShowPermissionAlertDialog(true))
-
-                }
+                printLog("onUpdatePermissionState $hasPermission")
+                viewModel.onAction((HomeAction.UpdatePermissionState(permissionState = hasPermission)))
             },
             onPermissionGranted = { granted ->
-                printLog("onPermissionGranted $granted", "bleCheck")
-                viewModel.onAction((HomeAction.OnPermissionGrantedChange(permissionGranted = granted)))
-                if (granted) {
-                    viewModel.onAction((HomeAction.OnPermissionGrantedChange(permissionGranted = true)))
-                    bluetoothStateObserver.updateBluetoothState()
-                } else {
-                    printLog("onPermissionGranted not", "bleCheck")
-
-                    // Show UI: "Bluetooth features won't work without permission"
-                    viewModel.onAction(HomeAction.ShowPermissionDeniedDialog(true))
-                }
+                printLog("onPermissionGranted $granted")
+                if (granted)
+                    viewModel.onAction((HomeAction.OnGrantPermissionConfirmed))
+                else
+                    viewModel.onAction((HomeAction.OnGrantPermissionCancelled))
             }
         )
 
     }
 
     private fun addPermissionObserver() {
-        printLog("initilizaBug addPermissionObserver", "bleCheck")
+        printLog("addPermissionObserver")
         lifecycle.addObserver(permissionManager)
     }
 
     private fun addBluetoothObserver() {
-        printLog("initilizaBug addBluetoothObserver", "bleCheck")
+        printLog("addBluetoothObserver")
         lifecycle.addObserver(
             observer = bluetoothStateObserver
         )

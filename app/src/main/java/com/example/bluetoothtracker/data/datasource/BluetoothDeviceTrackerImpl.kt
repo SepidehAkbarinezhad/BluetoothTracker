@@ -95,8 +95,8 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
     private suspend fun emitForInsertInRoom() {
         val resultList = scannedDeviceCache.values.toList()
-        printLog("1 emitForInsertInRoom result: ${resultList.size}", "checkDebug")
-        printLog("1 emitForInsertInRoom : $resultList", "checkDebug")
+        printLog("emitForInsertInRoom result size: ${resultList.size}")
+        printLog("emitForInsertInRoom : $resultList")
         _scannedDevices.emit(resultList)
         scannedDeviceCache.clear()
     }

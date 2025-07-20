@@ -31,7 +31,7 @@ class BluetoothStateObserver(
 
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
-        printLog("onStart", "bleCheck")
+        printLog("onStart")
         registerBroadCast()
     }
 
@@ -41,12 +41,12 @@ class BluetoothStateObserver(
         try {
             unRegisterBroadCast()
         } catch (e: Exception) {
-            printLog("onStop called error ${e.message}", "bleCheck")
+            printLog("onStop called error ${e.message}")
         }
     }
 
     private fun registerBluetoothLauncher() {
-        activity.registerForActivityResult(
+        btEnableResultLauncher = activity.registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -54,12 +54,15 @@ class BluetoothStateObserver(
                 onBluetoothStateChange(true)
             } else {
                 printLog("Activity.RESULT_NOT_OK")
-                onBluetoothStateChange( false)
+                onBluetoothStateChange(false)
             }
         }
     }
 
-    fun updateBluetoothState()  = onBluetoothStateChange(btAdapter?.isEnabled == true)
+    fun updateBluetoothState() {
+        printLog("updateBluetoothState")
+        onBluetoothStateChange(btAdapter?.isEnabled == true)
+    }
 
     /*
     * launches a system dialog that prompts the user
@@ -68,7 +71,7 @@ class BluetoothStateObserver(
     * callback registered in registerBluetoothLauncher().
     * */
     fun requestEnableBluetooth() {
-        printLog("initilizaBug requestEnableBluetooth", "bleCheck")
+        printLog("requestEnableBluetooth")
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         btEnableResultLauncher.launch(intent)
     }
@@ -87,12 +90,12 @@ class BluetoothStateObserver(
                 if (action == BluetoothAdapter.ACTION_STATE_CHANGED) {
                     when (btAdapter?.state) {
                         BluetoothAdapter.STATE_OFF -> {
-                            printLog("STATE_OFF", "bleCheck")
+                            printLog("STATE_OFF")
                             onBluetoothStateChange(false)
                         }
 
                         BluetoothAdapter.STATE_ON -> {
-                            printLog("STATE_ON", "bleCheck")
+                            printLog("STATE_ON")
                             onBluetoothStateChange(true)
                         }
                     }
@@ -102,7 +105,7 @@ class BluetoothStateObserver(
     }
 
     private fun registerBroadCast() {
-        printLog("registerBroadCast", "bleCheck")
+        printLog("registerBroadCast")
         activity.registerReceiver(
             broadcastReceiver,
             IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
@@ -110,7 +113,7 @@ class BluetoothStateObserver(
     }
 
     private fun unRegisterBroadCast() {
-        printLog("unRegisterBroadCast", "bleCheck")
+        printLog("unRegisterBroadCast")
         activity.unregisterReceiver(broadcastReceiver)
     }
 

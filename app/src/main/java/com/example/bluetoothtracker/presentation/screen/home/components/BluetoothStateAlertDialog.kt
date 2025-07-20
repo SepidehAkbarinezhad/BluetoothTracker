@@ -42,7 +42,7 @@ fun BluetoothStateAlertContent(
     onDismissRequest: () -> Unit
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -59,7 +59,7 @@ fun BluetoothStateAlertContent(
         )
         Spacer(modifier = Modifier.height(8.dp))
         AppRowButtons(
-            firstButtonTitle = R.string.ok_btn_label,
+            firstButtonTitle = R.string.turn_on_btn_label,
             onFirstButtonClick =
             onConfirm,
             secondButtonTitle = R.string.dismiss_permission_btn_label,

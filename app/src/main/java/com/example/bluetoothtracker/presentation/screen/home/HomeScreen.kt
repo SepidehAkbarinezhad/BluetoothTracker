@@ -27,51 +27,42 @@ import com.example.bluetoothtracker.presentation.utils.printLog
 fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
     val state by viewModel.homeStateValue.collectAsStateWithLifecycle()
 
-
-    LaunchedEffect(key1 = state.permissionGranted, key2 = state.bluetoothState) {
-        printLog("LaunchedEffect  $state")
-        if (state.permissionGranted == true && state.bluetoothState == true) {
-            printLog("LaunchedEffect permissions granted ", "bleCheck")
-            viewModel.startScan()
-        } else if (state.permissionGranted == false || state.bluetoothState == false) {
-            printLog("else if", "bleCheck")
-            viewModel.stopScan()
-            viewModel.onAction(HomeAction.ShowBluetoothAlertDialog(true))
+    LaunchedEffect(key1 = state.permissionState, key2 = state.bluetoothState) {
+        with(state) {
+            when {
+                permissionState == true && bluetoothState == true -> { viewModel.startScan() }
+                permissionState == false || bluetoothState == false -> { viewModel.stopScan() }
+            }
         }
     }
 
     HomeScreen(
         state = state,
         onAction = { action -> viewModel.onAction(action) },
-        onEvent = { event -> viewModel.sendEvent(event) })
-
+        modifier = modifier
+    )
 }
 
 @Composable
 fun HomeScreen(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
-    onEvent: (HomeEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         HomeContent(state = state, onAction = onAction)
         if (state.showPermissionAlertDialog) {
-            printLog("show permission alert dialog")
             PermissionAlertDialog(onConfirm = {
-                onAction(HomeAction.ShowPermissionAlertDialog(false))
-                onEvent(HomeEvent.RequestBluetoothPermission)
-            }, onDismissRequest = { onAction(HomeAction.ShowPermissionAlertDialog(false)) })
+                onAction(HomeAction.OnPermissionAlertDialogConfirm)
+            }, onDismissRequest = { onAction(HomeAction.OnPermissionAlertDialogDismiss) })
         } else if (state.showPermissionDeniedDialog) {
             PermissionDeniedDialog {
-                onAction(HomeAction.ShowPermissionDeniedDialog(false))
+                onAction(HomeAction.OnPermissionDeniedDialogDismiss)
             }
         } else if (state.showBluetoothStateDialog) {
             BluetoothStateAlertDialog(
-                onConfirm = {
-                    printLog("initilizaBug onConfirm", "bleCheck")
-                    onEvent(HomeEvent.RequestEnableBluetooth) },
-                onDismissRequest = { onAction(HomeAction.ShowBluetoothAlertDialog(false))}
+                onConfirm = { onAction(HomeAction.OnBluetoothAlertDialogConfirmed) },
+                onDismissRequest = {  onAction(HomeAction.OnBluetoothAlertDialogDismiss)}
             )
         }
     }
@@ -83,12 +74,11 @@ fun HomeContent(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
     modifier: Modifier = Modifier,
-    scrollState: LazyListState = rememberLazyListState()
 ) {
     var tabIndex by remember { mutableIntStateOf(0) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.Black)
             .statusBarsPadding(),

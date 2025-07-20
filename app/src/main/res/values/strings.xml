@@ -4,12 +4,13 @@
     <string name="Bluetooth_state_title_dialog">Bluetooth is off</string>
     <string name="permission_alert_dialog">Scanning Bluetooth devices require some bluetooth and Location permissions to work properly</string>
     <string name="permission_denied_dialog">To discover nearby devices and update data properly, this app needs Bluetooth permission.</string>
-    <string name="bluetooth_state_alert_dialog">please turn on bluetooth to see updated data</string>
-    <string name="ok_btn_label">ok</string>
+    <string name="bluetooth_state_alert_dialog">To see the latest nearby devices, please turn on Bluetooth.</string>
+    <string name="ok_btn_label">Ok</string>
+    <string name="turn_on_btn_label">Turn on</string>
     <string name="mac_address_label">macAddress: %s</string>
     <string name="name_label">name: %s</string>
     <string name="rssi_label">rssi: %s</string>
-    <string name="grant_permission_btn_label">grant</string>
-    <string name="dismiss_permission_btn_label">dismiss</string>
+    <string name="grant_permission_btn_label">Grant</string>
+    <string name="dismiss_permission_btn_label">Dismiss</string>
 
 </resources>
