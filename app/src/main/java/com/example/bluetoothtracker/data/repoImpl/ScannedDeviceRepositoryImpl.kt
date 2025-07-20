@@ -21,8 +21,9 @@ class ScannedDeviceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertDeviceList(deviceList: List<BluetoothScanResult>) {
-        printLog("insertDeviceList ScannedDeviceRepositoryImpl")
+        printLog("🔥 insertDeviceList ScannedDeviceRepositoryImpl - ${deviceList.size} devices", "dbDebug")
         localDataSource.insertAll(deviceList.toEntityList())
+        printLog("✅ insertDeviceList completed", "dbDebug")
     }
 
     override fun getAllDevices(): Flow<List<Device>> {

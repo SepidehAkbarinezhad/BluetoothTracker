@@ -27,8 +27,8 @@ class HomeViewModel @Inject constructor(
         bluetoothInteractor.insertScannedDeviceUseCase()
         viewModelScope.launch {
             bluetoothInteractor.getAllDevicesUseCase().collect { list ->
-                printLog("getAllDevicesUseCase: size ${list.size}", "uicheck")
-                printLog("getAllDevicesUseCase: $list", "uicheck")
+                printLog("🔔 DATABASE CHANGED! getAllDevicesUseCase: size ${list.size}", "dbDebug")
+                printLog("🔔 DEVICE LIST: $list", "dbDebug")
                 val sortedList = list.sortedByDescending { item -> item.rssi }
                 homeState.update {
                     it.copy(
