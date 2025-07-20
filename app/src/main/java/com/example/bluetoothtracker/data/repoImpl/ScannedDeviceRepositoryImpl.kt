@@ -8,10 +8,12 @@ import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.domain.data.Device
 import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ScannedDeviceRepositoryImpl @Inject constructor(
     private val localDataSource : ScannedDeviceLocalDataSource
 ) : ScannedDeviceRepository {

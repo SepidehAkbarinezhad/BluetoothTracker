@@ -12,11 +12,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import jakarta.inject.Qualifier
-import jakarta.inject.Singleton
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import javax.inject.Qualifier
+import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.RUNTIME)
@@ -27,12 +28,14 @@ annotation class ApplicationScope
 object BluetoothModule {
 
     @Provides
+    @Singleton
     @ApplicationScope
     fun provideApplicationScope(): CoroutineScope {
         return CoroutineScope(SupervisorJob() + Dispatchers.Default)
     }
 
     @Provides
+    @Singleton
     fun provideBluetoothAdapter(
         @ApplicationContext context: Context
     ): BluetoothAdapter? {
@@ -42,15 +45,17 @@ object BluetoothModule {
     }
 
     @Provides
+    @Singleton
     fun provideBluetoothManager(
         @ApplicationScope applicationScope: CoroutineScope,
         bluetoothAdapter: BluetoothAdapter?,
         scannedDeviceRepository: ScannedDeviceRepository
     ): BluetoothDeviceTracker {
-        return BluetoothDeviceTrackerImpl(applicationScope,bluetoothAdapter,scannedDeviceRepository)
+        return BluetoothDeviceTrackerImpl(applicationScope,bluetoothAdapter)
     }
 
     @Provides
+    @Singleton
     fun provideBluetoothRepository(
         bluetoothManager: BluetoothDeviceTracker
     ): BluetoothRepository = BluetoothRepositoryImpl(bluetoothManager)
