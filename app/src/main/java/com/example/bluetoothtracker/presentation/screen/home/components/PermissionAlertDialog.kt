@@ -13,27 +13,70 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.example.bluetoothtracker.R
-import com.example.bluetoothtracker.presentation.components.AppButton
+import com.example.bluetoothtracker.presentation.components.AppDialog
+import com.example.bluetoothtracker.presentation.components.AppRowButtons
 import com.example.bluetoothtracker.presentation.components.AppText
+import com.example.bluetoothtracker.presentation.components.DialogModel
 import com.example.bluetoothtracker.presentation.utils.TextType
+import com.example.bluetoothtracker.ui.theme.BluetoothTrackerTheme
 
 @Composable
-fun PermissionAlertDialog(onConfirm: () -> Unit) {
+fun PermissionAlertDialog(onConfirm: () -> Unit, onDismissRequest: () -> Unit) {
+    AppDialog(
+        dialogModel = DialogModel(
+            content = {
+                PermissionAlertContent(
+                    onConfirm = onConfirm,
+                    onDismissRequest = onDismissRequest
+                )
+            },
+            properties = DialogProperties(dismissOnClickOutside = false)
+        )
+    )
+}
+
+@Composable
+fun PermissionAlertContent(
+    modifier: Modifier = Modifier,
+    onConfirm: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
     Dialog(onDismissRequest = {}) {
         Card(
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AppText(text = R.string.permission_alert_dialog, textType = TextType.SubTitle)
+                AppText(
+                    modifier = Modifier.padding(4.dp),
+                    text = R.string.permission_alert_title_dialog,
+                    textType = TextType.SubTitle
+                )
+                AppText(
+                    text = R.string.permission_alert_dialog,
+                    textType = TextType.Body,
+                    textAlign = TextAlign.Center
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                AppButton(text = R.string.permission_dialog_btn_label, onClick = onConfirm)
+                AppRowButtons(
+                    firstButtonTitle = R.string.grant_permission_btn_label,
+                    onFirstButtonClick =
+                    onConfirm,
+                    secondButtonTitle = R.string.dismiss_permission_btn_label,
+                    onSecondButtonClick = onDismissRequest
+                )
+
             }
         }
 

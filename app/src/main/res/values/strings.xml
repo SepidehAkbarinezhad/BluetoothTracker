@@ -1,12 +1,14 @@
 <resources>
     <string name="app_name">Bluetooth Tracker</string>
+    <string name="permission_alert_title_dialog">Permissions are not granted!</string>
     <string name="permission_alert_dialog">Scanning Bluetooth devices require some bluetooth and Location permissions to work properly</string>
     <string name="permission_denied_dialog">To discover nearby devices and update data properly, this app needs Bluetooth permission.
 Please grant the required permission; otherwise, the app may not function as expected</string>
-    <string name="permission_dialog_btn_label">get permissions</string>
     <string name="ok_btn_label">ok</string>
     <string name="mac_address_label">macAddress: %s</string>
     <string name="name_label">name: %s</string>
     <string name="rssi_label">rssi: %s</string>
+    <string name="grant_permission_btn_label">grant</string>
+    <string name="dismiss_permission_btn_label">dismiss</string>
 
 </resources>
