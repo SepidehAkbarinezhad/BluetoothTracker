@@ -17,7 +17,6 @@ class ScannedDeviceLocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun insertAll(deviceList: List<ScannedDeviceEntity>) {
-        printLog("insertDeviceList ScannedDeviceLocalDataSourceImpl")
         dao.insertAll(deviceList)
     }
 

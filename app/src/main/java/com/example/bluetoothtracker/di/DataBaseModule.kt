@@ -13,12 +13,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
     @Provides
+    @Singleton
     fun provideDatabase(@ApplicationContext context: Context): ScannedDeviceDatabase {
         return Room.databaseBuilder(
             context,
@@ -28,16 +30,19 @@ object DatabaseModule {
     }
 
     @Provides
+    @Singleton
     fun provideBluetoothDeviceDao(db: ScannedDeviceDatabase): ScannedDeviceDao {
         return db.deviceDao()
     }
 
     @Provides
+    @Singleton
     fun provideScannedDeviceRepository(
         localDataSource: ScannedDeviceLocalDataSource
     ): ScannedDeviceRepository = ScannedDeviceRepositoryImpl(localDataSource)
 
     @Provides
+    @Singleton
     fun provideScannedDeviceLocalDataSource(
         dao: ScannedDeviceDao
     ): ScannedDeviceLocalDataSource = ScannedDeviceLocalDataSourceImpl(dao)

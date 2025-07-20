@@ -23,7 +23,6 @@ class ScannedDeviceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertDeviceList(deviceList: List<BluetoothScanResult>) {
-        printLog("insertDeviceList ScannedDeviceRepositoryImpl")
         localDataSource.insertAll(deviceList.toEntityList())
     }
 
