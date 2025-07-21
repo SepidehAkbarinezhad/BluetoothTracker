@@ -3,32 +3,27 @@ package com.example.bluetoothtracker.data.datasource
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
-import android.content.Context
-import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
-import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
+import com.example.bluetoothtracker.di.ApplicationScope
 import com.example.bluetoothtracker.presentation.utils.printLog
-import jakarta.inject.Inject
-import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
+@Singleton
 class BluetoothDeviceTrackerImpl @Inject constructor(
+    @ApplicationScope private val appScope: CoroutineScope,
     private val bluetoothAdapter: BluetoothAdapter?,
-    private val scannedDeviceRepository : ScannedDeviceRepository
-) :
-    BluetoothDeviceTracker {
+) : BluetoothDeviceTracker {
 
     private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
@@ -44,6 +39,7 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
     private val scanPeriod = 10_000L  // 10 seconds scan
     private val waitPeriod = 5_000L   // 5 seconds wait
 
+
     private val scanCallback = object : ScanCallback() {
 
         override fun onScanFailed(errorCode: Int) {
@@ -54,7 +50,6 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
-            printLog("onScanResult")
             super.onScanResult(callbackType, result)
             result?.let { scanResult ->
                 printLog("onScanResult $scanResult")
@@ -66,7 +61,6 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
                     rssi = scanResult.rssi,
                     lastSeen = System.currentTimeMillis()
                 )
-
                 /*
                 * Add or update the scanned device in the cache using MAC as the unique key.
                 * This avoids duplicates and ensures we always keep the latest scan info.
@@ -82,10 +76,9 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
     @SuppressLint("MissingPermission")
     override fun startScan() {
         printLog("startDiscovery")
-
         // Cancel previous job if any
         scanJob?.cancel()
-        scanJob = CoroutineScope(Dispatchers.Main).launch {
+        scanJob = appScope.launch {
             while (isActive) {
                 // Start scanning
                 bluetoothLeScanner?.startScan(scanCallback)
@@ -99,20 +92,20 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         }
     }
 
+
+    private suspend fun emitForInsertInRoom() {
+        val resultList = scannedDeviceCache.values.toList()
+        printLog("emitForInsertInRoom result size: ${resultList.size}")
+        printLog("emitForInsertInRoom : $resultList")
+        _scannedDevices.emit(resultList)
+        scannedDeviceCache.clear()
+    }
+
     @SuppressLint("MissingPermission")
     override fun stopScan() {
         printLog("stopDiscovery")
         scanJob?.cancel()
         bluetoothLeScanner?.stopScan(scanCallback)
-    }
-
-    private suspend fun emitForInsertInRoom(){
-        printLog("emitForInsertInRoom","sharedTag")
-
-        val resultList = scannedDeviceCache.values.toList()
-        printLog("result: $resultList")
-        scannedDeviceRepository.insertDeviceList(resultList)
-        //_scannedDevices.emit(resultList)
     }
 
     override fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>> = scannedDevices

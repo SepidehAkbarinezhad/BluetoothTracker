@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.bluetoothtracker.R
+import com.example.bluetoothtracker.presentation.components.AppButton
 import com.example.bluetoothtracker.presentation.components.AppDialog
 import com.example.bluetoothtracker.presentation.components.AppRowButtons
 import com.example.bluetoothtracker.presentation.components.AppText
@@ -20,11 +21,11 @@ import com.example.bluetoothtracker.presentation.components.DialogModel
 import com.example.bluetoothtracker.presentation.utils.TextType
 
 @Composable
-fun PermissionAlertDialog(onConfirm: () -> Unit, onDismissRequest: () -> Unit) {
+fun BluetoothStateAlertDialog(onConfirm: () -> Unit, onDismissRequest: () -> Unit) {
     AppDialog(
         dialogModel = DialogModel(
             content = {
-                PermissionAlertContent(
+                BluetoothStateAlertContent(
                     onConfirm = onConfirm,
                     onDismissRequest = onDismissRequest
                 )
@@ -35,7 +36,7 @@ fun PermissionAlertDialog(onConfirm: () -> Unit, onDismissRequest: () -> Unit) {
 }
 
 @Composable
-fun PermissionAlertContent(
+fun BluetoothStateAlertContent(
     modifier: Modifier = Modifier,
     onConfirm: () -> Unit,
     onDismissRequest: () -> Unit
@@ -48,17 +49,17 @@ fun PermissionAlertContent(
     ) {
         AppText(
             modifier = Modifier.padding(4.dp),
-            text = R.string.permission_alert_title_dialog,
+            text = R.string.Bluetooth_state_title_dialog,
             textType = TextType.SubTitle
         )
         AppText(
-            text = R.string.permission_alert_dialog,
+            text = R.string.bluetooth_state_alert_dialog,
             textType = TextType.Body,
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         AppRowButtons(
-            firstButtonTitle = R.string.grant_permission_btn_label,
+            firstButtonTitle = R.string.turn_on_btn_label,
             onFirstButtonClick =
             onConfirm,
             secondButtonTitle = R.string.dismiss_permission_btn_label,

@@ -5,12 +5,15 @@ import com.example.bluetoothtracker.data.mapper.toDomainList
 import com.example.bluetoothtracker.data.mapper.toEntity
 import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
+import com.example.bluetoothtracker.domain.data.Device
 import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class ScannedDeviceRepositoryImpl @Inject constructor(
     private val localDataSource : ScannedDeviceLocalDataSource
 ) : ScannedDeviceRepository {
@@ -20,11 +23,10 @@ class ScannedDeviceRepositoryImpl @Inject constructor(
     }
 
     override suspend fun insertDeviceList(deviceList: List<BluetoothScanResult>) {
-        printLog("insertDeviceList ScannedDeviceRepositoryImpl")
         localDataSource.insertAll(deviceList.toEntityList())
     }
 
-    override fun getAllDevices(): Flow<List<BluetoothScanResult>> {
+    override fun getAllDevices(): Flow<List<Device>> {
         return localDataSource.getAll().map {list->list.toDomainList() }
     }
 
