@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.location.LocationManager
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -116,5 +117,7 @@ class BluetoothStateObserver(
         printLog("unRegisterBroadCast")
         activity.unregisterReceiver(broadcastReceiver)
     }
+
+
 
 }

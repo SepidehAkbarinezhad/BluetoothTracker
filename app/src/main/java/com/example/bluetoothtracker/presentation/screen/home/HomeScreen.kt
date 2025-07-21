@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -18,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bluetoothtracker.presentation.screen.home.components.BluetoothStateAlertDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.HomeTabs
+import com.example.bluetoothtracker.presentation.screen.home.components.LocationServiceAlertDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionAlertDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionDeniedDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.TabContent
@@ -28,10 +27,10 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
     val state by viewModel.homeStateValue.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = state.permissionState, key2 = state.bluetoothState) {
-        printLog("LaunchedEffect","sdkTag")
+        printLog("LaunchedEffect  $state", "sdkTag")
         with(state) {
             when {
-                permissionState == true && bluetoothState == true -> { viewModel.startScan() }
+                permissionState == true && bluetoothState == true && locationServicesState == true -> { viewModel.startScan() }
                 permissionState == false || bluetoothState == false -> { viewModel.stopScan() }
             }
         }
@@ -60,10 +59,15 @@ fun HomeScreen(
             PermissionDeniedDialog {
                 onAction(HomeAction.OnPermissionDeniedDialogDismiss)
             }
-        } else if (state.showBluetoothStateDialog) {
+        } else if (state.showBluetoothStateAlertDialog) {
             BluetoothStateAlertDialog(
                 onConfirm = { onAction(HomeAction.OnBluetoothAlertDialogConfirmed) },
-                onDismissRequest = {  onAction(HomeAction.OnBluetoothAlertDialogDismiss)}
+                onDismissRequest = { onAction(HomeAction.OnBluetoothAlertDialogDismiss) }
+            )
+        } else if(state.showLocationServiceAlertDialog){
+            LocationServiceAlertDialog(
+                onConfirm = { onAction(HomeAction.OnLocationAlertDialogConfirmed) },
+                onDismissRequest = { onAction(HomeAction.OnLocationAlertDialogDismiss) }
             )
         }
     }

@@ -43,50 +43,71 @@ class HomeViewModel @Inject constructor(
 
     fun onAction(action: HomeAction) {
         when (action) {
-            is HomeAction.ShowPermissionAlertDialog -> updateShowPermissionAlertDialog(show = action.show)
-            is HomeAction.ShowPermissionDeniedDialog -> updateShowPermissionDeniedDialog(action.show)
-            is HomeAction.ShowBluetoothAlertDialog -> updateShowBluetoothAlertDialog(action.show)
-            is HomeAction.UpdatePermissionState -> {
+            is HomeAction.OnUpdatePermissionState -> {
                 printLog("UpdatePermissionState -> vm  ${action.permissionState}")
                 updatePermissionState(state = action.permissionState)
                 if (action.permissionState) {
                     //update bluetooth state just when permissions are granted because if it is off and want to turn it on it needs permissions
-                    sendEvent(HomeEvent.UpdateBluetoothState)
+                    sendEvent(HomeEvent.CheckBluetoothState)
                 } else {
                     // Show dialog: "Bluetooth features won't work without permission"
-                    updateShowPermissionAlertDialog(true)
+                    showPermissionAlertDialog(true)
                 }
             }
 
-            is HomeAction.BluetoothStateChange -> {
-                homeState.update { it.copy(bluetoothState = action.bluetoothState) }
-                updateShowBluetoothAlertDialog(!action.bluetoothState)
+            is HomeAction.OnBluetoothStateChange -> {
+                printLog("OnBluetoothStateChange ->")
+                updateBluetoothState(state = action.bluetoothState)
+                showBluetoothAlertDialog(!action.bluetoothState)
+                if (action.bluetoothState) sendEvent(HomeEvent.CheckLocationServiceState)
+            }
+
+            is HomeAction.OnUpdateLocationServiceState -> {
+                printLog("before ${homeState.value.permissionState}  ${homeState.value.bluetoothState}")
+                updateLocationServiceState(state = action.state)
+                if (!action.state) showLocationAlertDialog(true)
             }
 
             HomeAction.OnPermissionAlertDialogConfirm -> {
-                updateShowPermissionAlertDialog(show = false)
+                showPermissionAlertDialog(show = false)
                 sendEvent(HomeEvent.RequestBluetoothPermission)
             }
 
-            HomeAction.OnPermissionAlertDialogDismiss -> updateShowPermissionAlertDialog(show = false)
-
+            HomeAction.OnPermissionAlertDialogDismiss -> showPermissionAlertDialog(show = false)
             HomeAction.OnGrantPermissionConfirmed -> {
                 updatePermissionState(true)
-                sendEvent(HomeEvent.UpdateBluetoothState)
+                sendEvent(HomeEvent.CheckBluetoothState)
             }
 
             HomeAction.OnGrantPermissionCancelled -> {
                 updatePermissionState(false)
-                onAction(HomeAction.ShowPermissionDeniedDialog(true))
+                showPermissionDeniedDialog(true)
             }
 
             HomeAction.OnBluetoothAlertDialogConfirmed -> {
-                updateShowBluetoothAlertDialog(false)
+                showBluetoothAlertDialog(false)
                 sendEvent(HomeEvent.RequestEnableBluetooth)
             }
 
-            HomeAction.OnBluetoothAlertDialogDismiss -> updateShowBluetoothAlertDialog(false)
-            HomeAction.OnPermissionDeniedDialogDismiss -> updateShowPermissionDeniedDialog(show = false)
+            HomeAction.OnBluetoothAlertDialogDismiss -> showBluetoothAlertDialog(false)
+            HomeAction.OnPermissionDeniedDialogDismiss -> showPermissionDeniedDialog(show = false)
+            HomeAction.OnLocationAlertDialogConfirmed -> {
+                showLocationAlertDialog(false)
+                sendEvent(HomeEvent.RequestEnableLocationServices)
+            }
+
+            HomeAction.OnLocationAlertDialogDismiss -> showLocationAlertDialog(false)
+            HomeAction.CheckLocationStatuse -> {
+                /*
+                * Ensure requirement sequence: Permissions → Bluetooth → Location
+                * Skip location check if earlier requirements aren't met yet
+                 */
+                with(homeState.value) {
+                    if (permissionState != true || bluetoothState != true)
+                        return
+                }
+                sendEvent(HomeEvent.CheckLocationServiceState)
+            }
         }
     }
 
@@ -96,29 +117,42 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateShowPermissionAlertDialog(show: Boolean) {
+    private fun showPermissionAlertDialog(show: Boolean) {
         homeState.update { it.copy(showPermissionAlertDialog = show) }
     }
 
-    private fun updateShowPermissionDeniedDialog(show: Boolean) {
+    private fun showPermissionDeniedDialog(show: Boolean) {
         homeState.update { it.copy(showPermissionDeniedDialog = show) }
     }
 
-    private fun updateShowBluetoothAlertDialog(show: Boolean) {
-        homeState.update { it.copy(showBluetoothStateDialog = show) }
+    private fun showBluetoothAlertDialog(show: Boolean) {
+        homeState.update { it.copy(showBluetoothStateAlertDialog = show) }
+    }
+
+    private fun showLocationAlertDialog(show: Boolean) {
+        homeState.update { it.copy(showLocationServiceAlertDialog = show) }
     }
 
     private fun updatePermissionState(state: Boolean) {
         homeState.update { it.copy(permissionState = state) }
     }
 
+    private fun updateBluetoothState(state: Boolean) {
+        homeState.update { it.copy(bluetoothState = state) }
+    }
+
+    private fun updateLocationServiceState(state: Boolean) {
+        printLog("updateLocationServiceState  $state")
+        homeState.update { it.copy(locationServicesState = state) }
+    }
+
     fun startScan() {
-        printLog("vm startScan","sdkTag")
+        printLog("vm startScan", "sdkTag")
         bluetoothInteractor.startScnBluetooth()
     }
 
     fun stopScan() {
-        printLog("vm stopScan","sdkTag")
+        printLog("vm stopScan", "sdkTag")
         bluetoothInteractor.stopScnBluetoothUseCase
     }
 
