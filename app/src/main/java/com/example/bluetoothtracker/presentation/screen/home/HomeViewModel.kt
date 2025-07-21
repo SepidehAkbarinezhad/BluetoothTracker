@@ -51,7 +51,7 @@ class HomeViewModel @Inject constructor(
             is HomeAction.OnUpdatePermissionState -> {
                 updatePermissionState(state = action.permissionState)
                 if (action.permissionState) {
-                    //update bluetooth state just when permissions are granted because if it is off and want to turn it on it needs permissions
+                    //update bluetooth state just when permissions are granted
                     sendEvent(HomeEvent.CheckBluetoothState)
                 } else {
                     // Show dialog: "Bluetooth features won't work without permission"
@@ -87,6 +87,7 @@ class HomeViewModel @Inject constructor(
             }
 
             HomeAction.OnGrantPermissionCancelled -> {
+                printLog("OnGrantPermissionCancelled")
                 updatePermissionState(false)
                 showPermissionDeniedDialog(true)
             }
@@ -119,6 +120,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun showPermissionDeniedDialog(show: Boolean) {
+        printLog("showPermissionDeniedDialog $show")
         homeState.update { it.copy(showPermissionDeniedDialog = show) }
     }
 
@@ -161,10 +163,9 @@ class HomeViewModel @Inject constructor(
         * Ensure the required conditions are met in the following sequence before starting the scan: Permissions → Bluetooth → Location Services
         * If any of these are not satisfied, the corresponding dialog is handled to show within the Composable screen to request the necessary access
         * */
-        if (homeStateValue.value.allRequiredReady){
+        if (homeStateValue.value.allRequiredReady) {
             bluetoothInteractor.startScnBluetooth()
-        }
-        else {
+        } else {
             /*
             * - the `else` block handles the case when the user returns from Location Settings,
             * since the Location intent doesn't return a result like Bluetooth does.

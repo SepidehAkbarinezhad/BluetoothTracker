@@ -14,6 +14,7 @@ class LocationServiceManager(private val activity: ComponentActivity) {
                 locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
+    //Scanning will return an empty list if location services are not enabled
     fun promptEnableLocationServices() {
         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
         activity.startActivity(intent)

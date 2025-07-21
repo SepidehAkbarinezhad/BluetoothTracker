@@ -6,12 +6,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetAllDevicesUseCase @Inject constructor(
     private val repository: ScannedDeviceRepository
 ) {
+    //Return a flow that emits the current timestamp every 30 seconds
     private val timerFlow = flow {
         while (true) {
             emit(System.currentTimeMillis())     // ← Emit current timestamp
@@ -23,6 +23,7 @@ class GetAllDevicesUseCase @Inject constructor(
         return repository.getAllDevices().combine(timerFlow) { devices, timeForUpdate ->
             val twoMinutesAgo = timeForUpdate - (2 * 60 * 1000)
             devices.map { device ->
+               // A device is considered online if its lastSeen timestamp is within the last 2 minutes, and this status is updated every 30 seconds
                 val isOnline = device.lastSeen > twoMinutesAgo
                 device.copy(isOnline = isOnline)
             }
