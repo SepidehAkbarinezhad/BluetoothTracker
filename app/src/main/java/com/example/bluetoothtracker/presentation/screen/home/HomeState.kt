@@ -1,6 +1,7 @@
 package com.example.bluetoothtracker.presentation.screen.home
 
 import com.example.bluetoothtracker.domain.data.Device
+import com.example.bluetoothtracker.presentation.model.DeviceUiModel
 
 // UI state
 data class HomeState(
@@ -11,6 +12,6 @@ data class HomeState(
     val permissionState: Boolean? = null,
     val bluetoothState: Boolean? = null,
     val locationServicesState: Boolean? = null,
-    val onLineDevicesList: List<Device> = emptyList(),
-    val offlineDevicesList: List<Device> = emptyList()
+    val onLineDevicesList: List<DeviceUiModel> = emptyList(),
+    val offlineDevicesList: List<DeviceUiModel> = emptyList()
 )

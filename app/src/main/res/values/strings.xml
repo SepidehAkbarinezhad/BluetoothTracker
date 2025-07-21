@@ -9,9 +9,10 @@
     <string name="location_alert_dialog">Please enable location services to scan for Bluetooth devices</string>
     <string name="ok_btn_label">Ok</string>
     <string name="turn_on_btn_label">Turn on</string>
-    <string name="mac_address_label">macAddress: %s</string>
-    <string name="name_label">name: %s</string>
-    <string name="rssi_label">rssi: %s</string>
+    <string name="mac_address_label">macAddress:</string>
+    <string name="name_label">name:</string>
+    <string name="rssi_label">rssi:</string>
+    <string name="last_seen_label">last seen:</string>
     <string name="grant_permission_btn_label">Grant</string>
     <string name="dismiss_permission_btn_label">Dismiss</string>
 

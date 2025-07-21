@@ -3,6 +3,7 @@ package com.example.bluetoothtracker.presentation.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetoothtracker.domain.interactor.BluetoothInteractor
+import com.example.bluetoothtracker.presentation.mapper.toDeviceUiList
 import com.example.bluetoothtracker.presentation.utils.printLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,8 +28,8 @@ class HomeViewModel @Inject constructor(
                 val sortedList = list.sortedByDescending { item -> item.rssi }
                 homeState.update {
                     it.copy(
-                        onLineDevicesList = sortedList.filter { list -> list.isOnline },
-                        offlineDevicesList = sortedList.filter { list -> !list.isOnline })
+                        onLineDevicesList = sortedList.filter { list -> list.isOnline }.toDeviceUiList(),
+                        offlineDevicesList = sortedList.filter { list -> !list.isOnline }.toDeviceUiList())
                 }
             }
         }
