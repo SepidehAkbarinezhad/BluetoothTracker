@@ -13,6 +13,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.bluetoothtracker.presentation.common.BluetoothRequirementsManager
 import com.example.bluetoothtracker.presentation.common.BluetoothStateObserver
 import com.example.bluetoothtracker.presentation.common.PermissionManager
 import com.example.bluetoothtracker.presentation.screen.home.HomeAction
@@ -34,8 +35,8 @@ class MainActivity : ComponentActivity() {
     private val viewModel: HomeViewModel by viewModels()
 
     private lateinit var permissionManager: PermissionManager
-    private lateinit var bluetoothStateObserver: BluetoothStateObserver
-    private lateinit var locationServicesManager: LocationServicesManager
+    private var bluetoothStateObserver: BluetoothStateObserver? = null
+    private lateinit var requirementsManager: BluetoothRequirementsManager
 
     /*
     * registerForActivityResult() must be called before the activity is STARTED, usually in onCreate().
@@ -61,21 +62,19 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         initObservers()
         addPermissionObserver()
-        initLocationServicesManager()
+        initRequirementsManager()
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.event.collect { event ->
                     when (event) {
                         HomeEvent.RequestBluetoothPermission -> {
-                            permissionManager.requestBluetoothPermissions()
+                            requirementsManager.requestPermissions()
                         }
                         HomeEvent.RequestEnableBluetooth -> {
-                            if (::bluetoothStateObserver.isInitialized) {
-                                bluetoothStateObserver.requestEnableBluetooth()
-                            }
+                            requirementsManager.requestEnableBluetooth()
                         }
                         HomeEvent.RequestEnableLocationServices -> {
-                            locationServicesManager.promptEnableLocationServices()
+                            requirementsManager.requestEnableLocationServices()
                         }
                     }
                 }
@@ -123,33 +122,41 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addBluetoothObserver() {
-        lifecycle.addObserver(
-            observer = BluetoothStateObserver(
-                activity = this,
-                btAdapter = bluetoothAdapter,
-                btEnableResultLauncher = btEnableResultLauncher,
-                onBluetoothState = { isEnabled ->
-                    viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = isEnabled))
-                },
-            )
+        bluetoothStateObserver = BluetoothStateObserver(
+            activity = this,
+            btAdapter = bluetoothAdapter,
+            btEnableResultLauncher = btEnableResultLauncher,
+            onBluetoothState = { isEnabled ->
+                viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = isEnabled))
+                // Re-check all requirements when Bluetooth state changes
+                requirementsManager.checkAllRequirements()
+            }
         )
+        lifecycle.addObserver(bluetoothStateObserver!!)
     }
 
-    private fun initLocationServicesManager() {
-        locationServicesManager = LocationServicesManager(this)
-        // Check initial location services state
-        checkLocationServicesState()
-    }
-    
-    private fun checkLocationServicesState() {
-        val isEnabled = locationServicesManager.isLocationEnabled()
-        viewModel.onAction(HomeAction.OnLocationServicesChange(isEnabled))
+    private fun initRequirementsManager() {
+        requirementsManager = BluetoothRequirementsManager(
+            activity = this,
+            permissionManager = permissionManager,
+            bluetoothStateObserver = bluetoothStateObserver,
+            onRequirementsChange = { state ->
+                // Update ViewModel with all states at once
+                viewModel.onAction(HomeAction.OnPermissionGrantedChange(state.permissionsGranted))
+                viewModel.onAction(HomeAction.OnBluetoothStateChange(state.bluetoothEnabled))
+                viewModel.onAction(HomeAction.OnLocationServicesChange(state.locationServicesEnabled))
+            }
+        )
+        // Check initial state
+        requirementsManager.checkAllRequirements()
     }
 
     override fun onResume() {
         super.onResume()
-        // Re-check location services when returning from settings
-        checkLocationServicesState()
+        // Re-check all requirements when returning from settings
+        if (::requirementsManager.isInitialized) {
+            requirementsManager.checkAllRequirements()
+        }
     }
 
     override fun onStop() {
