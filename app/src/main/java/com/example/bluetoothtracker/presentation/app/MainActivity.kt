@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var permissionManager: PermissionManager
     private lateinit var bluetoothStateObserver: BluetoothStateObserver
+    private lateinit var locationServicesManager: LocationServicesManager
 
     /*
     * registerForActivityResult() must be called before the activity is STARTED, usually in onCreate().
@@ -60,6 +61,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         initObservers()
         addPermissionObserver()
+        initLocationServicesManager()
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.event.collect { event ->
@@ -68,7 +70,12 @@ class MainActivity : ComponentActivity() {
                             permissionManager.requestBluetoothPermissions()
                         }
                         HomeEvent.RequestEnableBluetooth -> {
-                            bluetoothStateObserver.requestEnableBluetooth()
+                            if (::bluetoothStateObserver.isInitialized) {
+                                bluetoothStateObserver.requestEnableBluetooth()
+                            }
+                        }
+                        HomeEvent.RequestEnableLocationServices -> {
+                            locationServicesManager.promptEnableLocationServices()
                         }
                     }
                 }
@@ -126,6 +133,10 @@ class MainActivity : ComponentActivity() {
                 },
             )
         )
+    }
+
+    private fun initLocationServicesManager() {
+        locationServicesManager = LocationServicesManager(this)
     }
 
     override fun onStop() {

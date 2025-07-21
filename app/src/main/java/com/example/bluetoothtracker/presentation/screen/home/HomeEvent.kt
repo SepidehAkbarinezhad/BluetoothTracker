@@ -4,4 +4,5 @@ package com.example.bluetoothtracker.presentation.screen.home
 sealed class HomeEvent {
     data object RequestBluetoothPermission : HomeEvent()
     data object RequestEnableBluetooth : HomeEvent()
+    data object RequestEnableLocationServices : HomeEvent()
 }
