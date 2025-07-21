@@ -137,6 +137,19 @@ class MainActivity : ComponentActivity() {
 
     private fun initLocationServicesManager() {
         locationServicesManager = LocationServicesManager(this)
+        // Check initial location services state
+        checkLocationServicesState()
+    }
+    
+    private fun checkLocationServicesState() {
+        val isEnabled = locationServicesManager.isLocationEnabled()
+        viewModel.onAction(HomeAction.OnLocationServicesChange(isEnabled))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Re-check location services when returning from settings
+        checkLocationServicesState()
     }
 
     override fun onStop() {

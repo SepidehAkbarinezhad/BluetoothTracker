@@ -65,8 +65,12 @@ class HomeViewModel @Inject constructor(
                 )
             }
 
+            is HomeAction.ShowLocationServicesDialog -> homeState.update {
+                it.copy(showLocationServicesDialog = action.show)
+            }
             is HomeAction.OnPermissionGrantedChange -> homeState.update { it.copy(permissionGranted = action.permissionGranted) }
             is HomeAction.OnBluetoothStateChange -> homeState.update { it.copy(bluetoothState = action.bluetoothState) }
+            is HomeAction.OnLocationServicesChange -> homeState.update { it.copy(locationServicesEnabled = action.locationServicesEnabled) }
         }
     }
 
