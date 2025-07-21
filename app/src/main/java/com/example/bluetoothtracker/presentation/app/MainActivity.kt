@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.bluetoothtracker.presentation.common.BluetoothStateObserver
+import com.example.bluetoothtracker.presentation.common.LocationServiceManager
 import com.example.bluetoothtracker.presentation.common.PermissionManager
 import com.example.bluetoothtracker.presentation.screen.home.HomeAction
 import com.example.bluetoothtracker.presentation.screen.home.HomeEvent
@@ -30,30 +31,35 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var permissionManager: PermissionManager
     private lateinit var bluetoothStateObserver: BluetoothStateObserver
+    private lateinit var locationServiceManager: LocationServiceManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initObservers()
         addPermissionObserver()
         addBluetoothObserver()
+        initLocationServiceManager()
         enableEdgeToEdge()
         setContent {
             val event by viewModel.event.collectAsStateWithLifecycle(null)
             LaunchedEffect(event) {
                 when (event) {
-                    is HomeEvent.UpdateBluetoothState -> {
-                        printLog("HomeEvent.UpdateBluetoothState ->")
-                        bluetoothStateObserver.updateBluetoothState()}
+                    is HomeEvent.CheckBluetoothState -> {
+                        bluetoothStateObserver.updateBluetoothState()
+                    }
                     is HomeEvent.RequestBluetoothPermission -> {
-                        printLog("HomeEvent.RequestBluetoothPermission -> ")
                         permissionManager.requestBluetoothPermissions()
                     }
-
                     is HomeEvent.RequestEnableBluetooth -> {
-                        printLog("HomeEvent.RequestEnableBluetooth ->")
                         bluetoothStateObserver.requestEnableBluetooth()
                     }
-
+                    is HomeEvent.CheckLocationServiceState -> {
+                        val locationIsOn = locationServiceManager.updateLocationServiceState()
+                        viewModel.onAction(HomeAction.OnUpdateLocationServiceState(state = locationIsOn))
+                    }
+                    is HomeEvent.RequestEnableLocationServices -> {
+                        locationServiceManager.promptEnableLocationServices()
+                    }
                     else -> {}
                 }
             }
@@ -65,19 +71,18 @@ class MainActivity : ComponentActivity() {
 
 
     private fun initObservers() {
-        printLog("initObservers")
         bluetoothStateObserver = BluetoothStateObserver(
             activity = this,
             btAdapter = bluetoothAdapter,
             onBluetoothStateChange = { isEnabled ->
-                viewModel.onAction(HomeAction.BluetoothStateChange(bluetoothState = isEnabled))
+                viewModel.onAction(HomeAction.OnBluetoothStateChange(bluetoothState = isEnabled))
             },
         )
         permissionManager = PermissionManager(
             activity = this,
             onUpdatePermissionState = { hasPermission ->
                 printLog("onUpdatePermissionState $hasPermission")
-                viewModel.onAction((HomeAction.UpdatePermissionState(permissionState = hasPermission)))
+                viewModel.onAction((HomeAction.OnUpdatePermissionState(permissionState = hasPermission)))
             },
             onPermissionGranted = { granted ->
                 printLog("onPermissionGranted $granted")
@@ -91,20 +96,28 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addPermissionObserver() {
-        printLog("addPermissionObserver")
         lifecycle.addObserver(permissionManager)
     }
 
     private fun addBluetoothObserver() {
-        printLog("addBluetoothObserver")
         lifecycle.addObserver(
             observer = bluetoothStateObserver
         )
     }
 
-    override fun onStop() {
-        super.onStop()
+    private fun initLocationServiceManager() {
+        locationServiceManager = LocationServiceManager(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.startScan()
+    }
+
+    override fun onPause() {
+        super.onPause()
         viewModel.stopScan()
     }
+
 }
 

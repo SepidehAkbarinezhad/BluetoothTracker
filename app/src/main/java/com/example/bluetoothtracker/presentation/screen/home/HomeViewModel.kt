@@ -3,6 +3,7 @@ package com.example.bluetoothtracker.presentation.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetoothtracker.domain.interactor.BluetoothInteractor
+import com.example.bluetoothtracker.presentation.mapper.toDeviceUiList
 import com.example.bluetoothtracker.presentation.utils.printLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,19 +21,6 @@ class HomeViewModel @Inject constructor(
 ) :
     ViewModel() {
 
-    init {
-        bluetoothInteractor.insertScannedDeviceUseCase()
-        viewModelScope.launch {
-            bluetoothInteractor.getAllDevicesUseCase().collect { list ->
-                val sortedList = list.sortedByDescending { item -> item.rssi }
-                homeState.update {
-                    it.copy(
-                        onLineDevicesList = sortedList.filter { list -> list.isOnline },
-                        offlineDevicesList = sortedList.filter { list -> !list.isOnline })
-                }
-            }
-        }
-    }
 
     private val _event = MutableSharedFlow<HomeEvent>(replay = 1)
     val event = _event.asSharedFlow()
@@ -40,53 +28,84 @@ class HomeViewModel @Inject constructor(
     private val homeState: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
     val homeStateValue: StateFlow<HomeState> = homeState.asStateFlow()
 
+    init {
+        bluetoothInteractor.insertScannedDeviceUseCase()
+        viewModelScope.launch {
+            bluetoothInteractor.getAllDevicesUseCase().collect { list ->
+                val sortedList = list.sortedByDescending { item -> item.rssi }
+                homeState.update {
+                    it.copy(
+                        onLineDevicesList = sortedList.filter { list -> list.isOnline }
+                            .toDeviceUiList()
+                            .also { list -> showOnlineDevicesLoading(list.isEmpty()) },
+                        offlineDevicesList = sortedList.filter { list -> !list.isOnline }
+                            .toDeviceUiList()
+                            .also { list -> showEmptyOfflineMessage(list.isEmpty()) })
+                }
+            }
+        }
+    }
 
     fun onAction(action: HomeAction) {
         when (action) {
-            is HomeAction.ShowPermissionAlertDialog -> updateShowPermissionAlertDialog(show = action.show)
-            is HomeAction.ShowPermissionDeniedDialog -> updateShowPermissionDeniedDialog(action.show)
-            is HomeAction.ShowBluetoothAlertDialog -> updateShowBluetoothAlertDialog(action.show)
-            is HomeAction.UpdatePermissionState -> {
-                printLog("UpdatePermissionState -> vm  ${action.permissionState}")
+            is HomeAction.OnUpdatePermissionState -> {
                 updatePermissionState(state = action.permissionState)
                 if (action.permissionState) {
-                    //update bluetooth state just when permissions are granted because if it is off and want to turn it on it needs permissions
-                    sendEvent(HomeEvent.UpdateBluetoothState)
+                    //update bluetooth state just when permissions are granted
+                    sendEvent(HomeEvent.CheckBluetoothState)
                 } else {
                     // Show dialog: "Bluetooth features won't work without permission"
-                    updateShowPermissionAlertDialog(true)
+                    showPermissionAlertDialog(true)
                 }
             }
 
-            is HomeAction.BluetoothStateChange -> {
-                homeState.update { it.copy(bluetoothState = action.bluetoothState) }
-                updateShowBluetoothAlertDialog(!action.bluetoothState)
+            is HomeAction.OnBluetoothStateChange -> {
+                updateBluetoothState(state = action.bluetoothState)
+                if (action.bluetoothState) {
+                    checkLocationStatus()
+                } else {
+                    if (homeState.value.permissionState == true) {
+                        showBluetoothAlertDialog(true)
+                    }
+                }
+            }
+
+            is HomeAction.OnUpdateLocationServiceState -> {
+                updateLocationServiceState(state = action.state)
+                if (!action.state) showLocationAlertDialog(true)
             }
 
             HomeAction.OnPermissionAlertDialogConfirm -> {
-                updateShowPermissionAlertDialog(show = false)
+                showPermissionAlertDialog(show = false)
                 sendEvent(HomeEvent.RequestBluetoothPermission)
             }
 
-            HomeAction.OnPermissionAlertDialogDismiss -> updateShowPermissionAlertDialog(show = false)
-
+            HomeAction.OnPermissionAlertDialogDismiss -> showPermissionAlertDialog(show = false)
             HomeAction.OnGrantPermissionConfirmed -> {
                 updatePermissionState(true)
-                sendEvent(HomeEvent.UpdateBluetoothState)
+                sendEvent(HomeEvent.CheckBluetoothState)
             }
 
             HomeAction.OnGrantPermissionCancelled -> {
+                printLog("OnGrantPermissionCancelled")
                 updatePermissionState(false)
-                onAction(HomeAction.ShowPermissionDeniedDialog(true))
+                showPermissionDeniedDialog(true)
             }
 
             HomeAction.OnBluetoothAlertDialogConfirmed -> {
-                updateShowBluetoothAlertDialog(false)
+                showBluetoothAlertDialog(false)
                 sendEvent(HomeEvent.RequestEnableBluetooth)
             }
 
-            HomeAction.OnBluetoothAlertDialogDismiss -> updateShowBluetoothAlertDialog(false)
-            HomeAction.OnPermissionDeniedDialogDismiss -> updateShowPermissionDeniedDialog(show = false)
+            HomeAction.OnBluetoothAlertDialogDismiss -> showBluetoothAlertDialog(false)
+            HomeAction.OnPermissionDeniedDialogDismiss -> showPermissionDeniedDialog(show = false)
+            HomeAction.OnLocationAlertDialogConfirmed -> {
+                showLocationAlertDialog(false)
+                sendEvent(HomeEvent.RequestEnableLocationServices)
+            }
+
+            HomeAction.OnLocationAlertDialogDismiss -> showLocationAlertDialog(false)
+            HomeAction.CheckLocationStatus -> checkLocationStatus()
         }
     }
 
@@ -96,30 +115,74 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun updateShowPermissionAlertDialog(show: Boolean) {
+    private fun showPermissionAlertDialog(show: Boolean) {
         homeState.update { it.copy(showPermissionAlertDialog = show) }
     }
 
-    private fun updateShowPermissionDeniedDialog(show: Boolean) {
+    private fun showPermissionDeniedDialog(show: Boolean) {
+        printLog("showPermissionDeniedDialog $show")
         homeState.update { it.copy(showPermissionDeniedDialog = show) }
     }
 
-    private fun updateShowBluetoothAlertDialog(show: Boolean) {
-        homeState.update { it.copy(showBluetoothStateDialog = show) }
+    private fun showBluetoothAlertDialog(show: Boolean) {
+        homeState.update { it.copy(showBluetoothStateAlertDialog = show) }
+    }
+
+    private fun showLocationAlertDialog(show: Boolean) {
+        homeState.update { it.copy(showLocationServiceAlertDialog = show) }
     }
 
     private fun updatePermissionState(state: Boolean) {
         homeState.update { it.copy(permissionState = state) }
     }
 
+    private fun updateBluetoothState(state: Boolean) {
+        homeState.update { it.copy(bluetoothState = state) }
+    }
+
+    private fun updateLocationServiceState(state: Boolean) {
+        printLog("updateLocationServiceState  $state")
+        homeState.update { it.copy(locationServicesState = state) }
+    }
+
+    private fun checkLocationStatus() {
+        sendEvent(HomeEvent.CheckLocationServiceState)
+    }
+
+    private fun showOnlineDevicesLoading(show: Boolean) {
+        homeState.update { it.copy(onlineDevicesLoading = show) }
+    }
+
+    private fun showEmptyOfflineMessage(show: Boolean) {
+        homeState.update { it.copy(emptyOfflineMessage = show) }
+    }
+
     fun startScan() {
-        printLog("vm startScan")
-        bluetoothInteractor.startScnBluetooth()
+
+        /*
+        * Ensure the required conditions are met in the following sequence before starting the scan: Permissions → Bluetooth → Location Services
+        * If any of these are not satisfied, the corresponding dialog is handled to show within the Composable screen to request the necessary access
+        * */
+        if (homeStateValue.value.allRequiredReady) {
+            bluetoothInteractor.startScnBluetooth()
+        } else {
+            /*
+            * - the `else` block handles the case when the user returns from Location Settings,
+            * since the Location intent doesn't return a result like Bluetooth does.
+            * - Skip the location check if earlier requirements (permissions or Bluetooth) are not yet met ,
+            * This prevents unnecessary checks during the first call to onResume.
+            * */
+            with(homeState.value) {
+                if (permissionState != true || bluetoothState != true)
+                    return
+            }
+            checkLocationStatus()
+
+        }
     }
 
     fun stopScan() {
-        printLog("vm stopScan")
-        bluetoothInteractor.stopScnBluetoothUseCase
+        bluetoothInteractor.stopScnBluetoothUseCase()
     }
 
 

@@ -52,8 +52,6 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
             super.onScanResult(callbackType, result)
             result?.let { scanResult ->
-                printLog("onScanResult $scanResult")
-
                 val mac = scanResult.device.address ?: return
                 val device = BluetoothScanResult(
                     name = scanResult.device.name.orEmpty(),
@@ -75,7 +73,6 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
     @SuppressLint("MissingPermission")
     override fun startScan() {
-        printLog("startDiscovery")
         // Cancel previous job if any
         scanJob?.cancel()
         scanJob = appScope.launch {
@@ -95,15 +92,12 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
     private suspend fun emitForInsertInRoom() {
         val resultList = scannedDeviceCache.values.toList()
-        printLog("emitForInsertInRoom result size: ${resultList.size}")
-        printLog("emitForInsertInRoom : $resultList")
         _scannedDevices.emit(resultList)
         scannedDeviceCache.clear()
     }
 
     @SuppressLint("MissingPermission")
     override fun stopScan() {
-        printLog("stopDiscovery")
         scanJob?.cancel()
         bluetoothLeScanner?.stopScan(scanCallback)
     }

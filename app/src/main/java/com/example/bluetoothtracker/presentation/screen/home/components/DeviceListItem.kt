@@ -10,18 +10,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.bluetoothtracker.R
-import com.example.bluetoothtracker.domain.data.Device
-import com.example.bluetoothtracker.presentation.components.AppText
-import com.example.bluetoothtracker.presentation.utils.TextType
+import com.example.bluetoothtracker.presentation.components.AppRowItem
+import com.example.bluetoothtracker.presentation.model.DeviceUiModel
 
 @Composable
 fun DeviceListItem(
     modifier: Modifier = Modifier,
-    device: Device,
+    device: DeviceUiModel,
 ) {
     Card(
         modifier = modifier.fillMaxWidth().padding(8.dp), shape = RoundedCornerShape(12.dp),
@@ -32,26 +29,13 @@ fun DeviceListItem(
                 Modifier.padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                AppText(text = stringResource(R.string.mac_address_label,macAddress) , textType = TextType.SubTitle)
-                AppText(
-                    text = stringResource(R.string.name_label,name?:"Unknown"),
-                    textType = TextType.Body
-
-                )
-                AppText(
-                    text = stringResource(R.string.rssi_label,rssi),
-                    textType = TextType.Body
-                )
-
+                AppRowItem(title = R.string.mac_address_label, value = macAddress)
+                AppRowItem(title = R.string.name_label, value = name)
+                AppRowItem(title = R.string.last_seen_label, value = lastSeenFormatted)
+                AppRowItem(title = R.string.rssi_label, value = rssi)
             }
 
         }
     }
 
-}
-
-@Preview
-@Composable
-private fun DeviceListItemPrev() {
-    DeviceListItem(device = Device(name = "gav", macAddress = "gav", rssi = 1, lastSeen = 1))
 }

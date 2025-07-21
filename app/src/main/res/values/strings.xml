@@ -2,15 +2,21 @@
     <string name="app_name">Bluetooth Tracker</string>
     <string name="permission_alert_title_dialog">Permissions need to be granted!</string>
     <string name="Bluetooth_state_title_dialog">Bluetooth is off</string>
-    <string name="permission_alert_dialog">Scanning Bluetooth devices require some bluetooth and Location permissions to work properly</string>
+    <string name="Location_alert_title_dialog">Location Services Required</string>
+    <string name="permission_alert_dialog">Scanning Bluetooth devices requires both Bluetooth and Location permissions to function properly.</string>
     <string name="permission_denied_dialog">To discover nearby devices and update data properly, this app needs Bluetooth permission.</string>
     <string name="bluetooth_state_alert_dialog">To see the latest nearby devices, please turn on Bluetooth.</string>
+    <string name="location_alert_dialog">Please enable location services to scan for Bluetooth devices</string>
     <string name="ok_btn_label">Ok</string>
     <string name="turn_on_btn_label">Turn on</string>
-    <string name="mac_address_label">macAddress: %s</string>
-    <string name="name_label">name: %s</string>
-    <string name="rssi_label">rssi: %s</string>
+    <string name="mac_address_label">macAddress:</string>
+    <string name="name_label">name:</string>
+    <string name="rssi_label">rssi:</string>
+    <string name="last_seen_label">last seen:</string>
     <string name="grant_permission_btn_label">Grant</string>
     <string name="dismiss_permission_btn_label">Dismiss</string>
+    <string name="empty_online_list_loading_message">No active devices nearby</string>
+    <string name="waiting_message">Waiting for fresh scan results</string>
+    <string name="empty_offline_message">no offline device</string>
 
 </resources>
