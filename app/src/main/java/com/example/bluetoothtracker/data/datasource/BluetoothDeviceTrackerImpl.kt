@@ -3,6 +3,7 @@ package com.example.bluetoothtracker.data.datasource
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanCallback.*
 import android.content.Context
 import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
@@ -50,16 +51,23 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
-            printLog("Scan error $errorCode")
+            printLog("❌ Scan FAILED with error code: $errorCode", "scanDebug")
+            when (errorCode) {
+                SCAN_FAILED_ALREADY_STARTED -> printLog("SCAN_FAILED_ALREADY_STARTED", "scanDebug")
+                SCAN_FAILED_APPLICATION_REGISTRATION_FAILED -> printLog("SCAN_FAILED_APPLICATION_REGISTRATION_FAILED", "scanDebug")
+                SCAN_FAILED_FEATURE_UNSUPPORTED -> printLog("SCAN_FAILED_FEATURE_UNSUPPORTED", "scanDebug")
+                SCAN_FAILED_INTERNAL_ERROR -> printLog("SCAN_FAILED_INTERNAL_ERROR", "scanDebug")
+                SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES -> printLog("SCAN_FAILED_OUT_OF_HARDWARE_RESOURCES", "scanDebug")
+            }
             stop()
         }
 
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: android.bluetooth.le.ScanResult?) {
-            printLog("onScanResult")
+            printLog("✅ onScanResult called!", "scanDebug")
             super.onScanResult(callbackType, result)
             result?.let { scanResult ->
-                printLog("onScanResult $scanResult")
+                printLog("📱 Found device: ${scanResult.device.name ?: "Unknown"} - ${scanResult.device.address} - RSSI: ${scanResult.rssi}", "scanDebug")
 
                 val mac = scanResult.device.address ?: return
                 val device = BluetoothScanResult(
@@ -83,21 +91,39 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
     @SuppressLint("MissingPermission")
     override fun startScan() {
-        printLog("startDiscovery")
+        printLog("🚀 Starting Bluetooth LE scan...", "scanDebug")
+        
+        // Check if Bluetooth is enabled
+        if (bluetoothAdapter?.isEnabled != true) {
+            printLog("❌ Bluetooth is not enabled!", "scanDebug")
+            return
+        }
+        
+        // Check if scanner is available
+        if (bluetoothLeScanner == null) {
+            printLog("❌ BluetoothLeScanner is null!", "scanDebug")
+            return
+        }
+        
+        printLog("✅ Bluetooth enabled, scanner available", "scanDebug")
+        
         // Cancel previous job if any
         scanJob?.cancel()
         
         scanJob = appScope.launch {
             // Wait 5 seconds to ensure collector is definitely running
-            printLog("Waiting 5 seconds to ensure collector is ready...", "emission_debug")
+            printLog("⏳ Waiting 5 seconds to ensure collector is ready...", "scanDebug")
             delay(5000)
-            printLog("5 seconds passed, starting actual scanning now", "emission_debug")
+            printLog("✅ 5 seconds passed, starting actual scanning now", "scanDebug")
             
             while (isActive) {
                 // Start scanning
+                printLog("🔍 Starting BLE scan...", "scanDebug")
                 bluetoothLeScanner?.startScan(scanCallback)
                 delay(scanPeriod) // scan for 10 seconds
-                printLog("result: ${scannedDeviceCache.values}")
+                printLog("🛑 Stopping BLE scan...", "scanDebug")
+                printLog("📊 Scan results: ${scannedDeviceCache.size} devices found", "scanDebug")
+                printLog("📋 Device list: ${scannedDeviceCache.values}", "scanDebug")
                 // Stop scanning
                 bluetoothLeScanner?.stopScan(scanCallback)
                 emitForInsertInRoom()
