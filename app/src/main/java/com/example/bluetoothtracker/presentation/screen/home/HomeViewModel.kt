@@ -21,19 +21,6 @@ class HomeViewModel @Inject constructor(
 ) :
     ViewModel() {
 
-    init {
-        bluetoothInteractor.insertScannedDeviceUseCase()
-        viewModelScope.launch {
-            bluetoothInteractor.getAllDevicesUseCase().collect { list ->
-                val sortedList = list.sortedByDescending { item -> item.rssi }
-                homeState.update {
-                    it.copy(
-                        onLineDevicesList = sortedList.filter { list -> list.isOnline }.toDeviceUiList(),
-                        offlineDevicesList = sortedList.filter { list -> !list.isOnline }.toDeviceUiList())
-                }
-            }
-        }
-    }
 
     private val _event = MutableSharedFlow<HomeEvent>(replay = 1)
     val event = _event.asSharedFlow()
@@ -41,6 +28,19 @@ class HomeViewModel @Inject constructor(
     private val homeState: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
     val homeStateValue: StateFlow<HomeState> = homeState.asStateFlow()
 
+    init {
+        bluetoothInteractor.insertScannedDeviceUseCase()
+        viewModelScope.launch {
+            bluetoothInteractor.getAllDevicesUseCase().collect { list ->
+                val sortedList = list.sortedByDescending { item -> item.rssi }
+                homeState.update {
+                    it.copy(
+                        onLineDevicesList = sortedList.filter { list -> list.isOnline }.toDeviceUiList().also {list-> showOnlineDevicesLoading(list.isEmpty()) },
+                        offlineDevicesList = sortedList.filter { list -> !list.isOnline }.toDeviceUiList().also {list-> showEmptyOfflineMessage(list.isEmpty()) })
+                }
+            }
+        }
+    }
 
     fun onAction(action: HomeAction) {
         when (action) {
@@ -55,7 +55,6 @@ class HomeViewModel @Inject constructor(
                     showPermissionAlertDialog(true)
                 }
             }
-
             is HomeAction.OnBluetoothStateChange -> {
                 printLog("OnBluetoothStateChange ->")
                 updateBluetoothState(state = action.bluetoothState)
@@ -67,41 +66,34 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
-
             is HomeAction.OnUpdateLocationServiceState -> {
                 printLog("before ${homeState.value.permissionState}  ${homeState.value.bluetoothState}")
                 updateLocationServiceState(state = action.state)
                 if (!action.state) showLocationAlertDialog(true)
             }
-
             HomeAction.OnPermissionAlertDialogConfirm -> {
                 showPermissionAlertDialog(show = false)
                 sendEvent(HomeEvent.RequestBluetoothPermission)
             }
-
             HomeAction.OnPermissionAlertDialogDismiss -> showPermissionAlertDialog(show = false)
             HomeAction.OnGrantPermissionConfirmed -> {
                 updatePermissionState(true)
                 sendEvent(HomeEvent.CheckBluetoothState)
             }
-
             HomeAction.OnGrantPermissionCancelled -> {
                 updatePermissionState(false)
                 showPermissionDeniedDialog(true)
             }
-
             HomeAction.OnBluetoothAlertDialogConfirmed -> {
                 showBluetoothAlertDialog(false)
                 sendEvent(HomeEvent.RequestEnableBluetooth)
             }
-
             HomeAction.OnBluetoothAlertDialogDismiss -> showBluetoothAlertDialog(false)
             HomeAction.OnPermissionDeniedDialogDismiss -> showPermissionDeniedDialog(show = false)
             HomeAction.OnLocationAlertDialogConfirmed -> {
                 showLocationAlertDialog(false)
                 sendEvent(HomeEvent.RequestEnableLocationServices)
             }
-
             HomeAction.OnLocationAlertDialogDismiss -> showLocationAlertDialog(false)
             HomeAction.CheckLocationStatus -> checkLocationStatus()
         }
@@ -154,13 +146,19 @@ class HomeViewModel @Inject constructor(
         sendEvent(HomeEvent.CheckLocationServiceState)
     }
 
+    private fun showOnlineDevicesLoading(show : Boolean){
+        homeState.update { it.copy(onlineDevicesLoading = show) }
+    }
+
+    private fun showEmptyOfflineMessage(show : Boolean){
+        homeState.update { it.copy(emptyOfflineMessage = show) }
+    }
+
     fun startScan() {
-        printLog("vm startScan", "sdkTag")
         bluetoothInteractor.startScnBluetooth()
     }
 
     fun stopScan() {
-        printLog("vm stopScan", "sdkTag")
         bluetoothInteractor.stopScnBluetoothUseCase
     }
 

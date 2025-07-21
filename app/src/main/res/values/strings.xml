@@ -15,5 +15,8 @@
     <string name="last_seen_label">last seen:</string>
     <string name="grant_permission_btn_label">Grant</string>
     <string name="dismiss_permission_btn_label">Dismiss</string>
+    <string name="empty_online_list_loading_message">No active devices nearby</string>
+    <string name="waiting_message">Waiting for fresh scan results</string>
+    <string name="empty_offline_message">no offline device</string>
 
 </resources>
