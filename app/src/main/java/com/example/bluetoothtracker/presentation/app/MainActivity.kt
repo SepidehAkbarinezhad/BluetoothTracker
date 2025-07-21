@@ -45,30 +45,21 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(event) {
                 when (event) {
                     is HomeEvent.CheckBluetoothState -> {
-                        printLog("HomeEvent.UpdateBluetoothState ->")
                         bluetoothStateObserver.updateBluetoothState()
                     }
-
                     is HomeEvent.RequestBluetoothPermission -> {
-                        printLog("HomeEvent.RequestBluetoothPermission -> ")
                         permissionManager.requestBluetoothPermissions()
                     }
-
                     is HomeEvent.RequestEnableBluetooth -> {
-                        printLog("HomeEvent.RequestEnableBluetooth ->")
                         bluetoothStateObserver.requestEnableBluetooth()
                     }
-
                     is HomeEvent.CheckLocationServiceState -> {
-                        printLog("UpdateLocationServiceState->")
                         val locationIsOn = locationServiceManager.updateLocationServiceState()
                         viewModel.onAction(HomeAction.OnUpdateLocationServiceState(state = locationIsOn))
                     }
-
                     is HomeEvent.RequestEnableLocationServices -> {
                         locationServiceManager.promptEnableLocationServices()
                     }
-
                     else -> {}
                 }
             }
@@ -105,12 +96,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun addPermissionObserver() {
-        printLog("addPermissionObserver")
         lifecycle.addObserver(permissionManager)
     }
 
     private fun addBluetoothObserver() {
-        printLog("addBluetoothObserver")
         lifecycle.addObserver(
             observer = bluetoothStateObserver
         )
@@ -120,15 +109,15 @@ class MainActivity : ComponentActivity() {
         locationServiceManager = LocationServiceManager(this)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onResume() {
+        super.onResume()
+        viewModel.startScan()
+    }
+
+    override fun onPause() {
+        super.onPause()
         viewModel.stopScan()
     }
 
-    override fun onResume() {
-        super.onResume()
-        //Check when user returns from location Setting because the intent doesn't have returned intent unlike bluetooth
-        viewModel.onAction(HomeAction.CheckLocationStatus)
-    }
 }
 

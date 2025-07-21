@@ -25,7 +25,6 @@ import com.example.bluetoothtracker.presentation.screen.home.components.Location
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionAlertDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.PermissionDeniedDialog
 import com.example.bluetoothtracker.presentation.screen.home.components.TabContent
-import com.example.bluetoothtracker.presentation.utils.TextType
 import com.example.bluetoothtracker.presentation.utils.printLog
 
 @Composable
@@ -36,7 +35,8 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
         printLog("LaunchedEffect  $state")
         with(state) {
             when {
-                permissionState == true && bluetoothState == true && locationServicesState == true -> { viewModel.startScan() }
+                permissionState == true && bluetoothState == true && locationServicesState == true -> {
+                    viewModel.startScan() }
                 permissionState == false || bluetoothState == false -> { viewModel.stopScan() }
             }
         }

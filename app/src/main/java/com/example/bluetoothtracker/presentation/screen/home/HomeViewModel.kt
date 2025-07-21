@@ -35,8 +35,12 @@ class HomeViewModel @Inject constructor(
                 val sortedList = list.sortedByDescending { item -> item.rssi }
                 homeState.update {
                     it.copy(
-                        onLineDevicesList = sortedList.filter { list -> list.isOnline }.toDeviceUiList().also {list-> showOnlineDevicesLoading(list.isEmpty()) },
-                        offlineDevicesList = sortedList.filter { list -> !list.isOnline }.toDeviceUiList().also {list-> showEmptyOfflineMessage(list.isEmpty()) })
+                        onLineDevicesList = sortedList.filter { list -> list.isOnline }
+                            .toDeviceUiList()
+                            .also { list -> showOnlineDevicesLoading(list.isEmpty()) },
+                        offlineDevicesList = sortedList.filter { list -> !list.isOnline }
+                            .toDeviceUiList()
+                            .also { list -> showEmptyOfflineMessage(list.isEmpty()) })
                 }
             }
         }
@@ -45,7 +49,6 @@ class HomeViewModel @Inject constructor(
     fun onAction(action: HomeAction) {
         when (action) {
             is HomeAction.OnUpdatePermissionState -> {
-                printLog("UpdatePermissionState -> vm  ${action.permissionState}")
                 updatePermissionState(state = action.permissionState)
                 if (action.permissionState) {
                     //update bluetooth state just when permissions are granted because if it is off and want to turn it on it needs permissions
@@ -55,8 +58,8 @@ class HomeViewModel @Inject constructor(
                     showPermissionAlertDialog(true)
                 }
             }
+
             is HomeAction.OnBluetoothStateChange -> {
-                printLog("OnBluetoothStateChange ->")
                 updateBluetoothState(state = action.bluetoothState)
                 if (action.bluetoothState) {
                     checkLocationStatus()
@@ -66,34 +69,40 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+
             is HomeAction.OnUpdateLocationServiceState -> {
-                printLog("before ${homeState.value.permissionState}  ${homeState.value.bluetoothState}")
                 updateLocationServiceState(state = action.state)
                 if (!action.state) showLocationAlertDialog(true)
             }
+
             HomeAction.OnPermissionAlertDialogConfirm -> {
                 showPermissionAlertDialog(show = false)
                 sendEvent(HomeEvent.RequestBluetoothPermission)
             }
+
             HomeAction.OnPermissionAlertDialogDismiss -> showPermissionAlertDialog(show = false)
             HomeAction.OnGrantPermissionConfirmed -> {
                 updatePermissionState(true)
                 sendEvent(HomeEvent.CheckBluetoothState)
             }
+
             HomeAction.OnGrantPermissionCancelled -> {
                 updatePermissionState(false)
                 showPermissionDeniedDialog(true)
             }
+
             HomeAction.OnBluetoothAlertDialogConfirmed -> {
                 showBluetoothAlertDialog(false)
                 sendEvent(HomeEvent.RequestEnableBluetooth)
             }
+
             HomeAction.OnBluetoothAlertDialogDismiss -> showBluetoothAlertDialog(false)
             HomeAction.OnPermissionDeniedDialogDismiss -> showPermissionDeniedDialog(show = false)
             HomeAction.OnLocationAlertDialogConfirmed -> {
                 showLocationAlertDialog(false)
                 sendEvent(HomeEvent.RequestEnableLocationServices)
             }
+
             HomeAction.OnLocationAlertDialogDismiss -> showLocationAlertDialog(false)
             HomeAction.CheckLocationStatus -> checkLocationStatus()
         }
@@ -135,31 +144,44 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun checkLocationStatus() {
-        /*
-        * Ensure requirement sequence: Permissions → Bluetooth → Location
-        * Skip location check if earlier requirements aren't met yet
-        */
-        with(homeState.value) {
-            if (permissionState != true || bluetoothState != true)
-                return
-        }
         sendEvent(HomeEvent.CheckLocationServiceState)
     }
 
-    private fun showOnlineDevicesLoading(show : Boolean){
+    private fun showOnlineDevicesLoading(show: Boolean) {
         homeState.update { it.copy(onlineDevicesLoading = show) }
     }
 
-    private fun showEmptyOfflineMessage(show : Boolean){
+    private fun showEmptyOfflineMessage(show: Boolean) {
         homeState.update { it.copy(emptyOfflineMessage = show) }
     }
 
     fun startScan() {
-        bluetoothInteractor.startScnBluetooth()
+
+        /*
+        * Ensure the required conditions are met in the following sequence before starting the scan: Permissions → Bluetooth → Location Services
+        * If any of these are not satisfied, the corresponding dialog is handled to show within the Composable screen to request the necessary access
+        * */
+        if (homeStateValue.value.allRequiredReady){
+            bluetoothInteractor.startScnBluetooth()
+        }
+        else {
+            /*
+            * - the `else` block handles the case when the user returns from Location Settings,
+            * since the Location intent doesn't return a result like Bluetooth does.
+            * - Skip the location check if earlier requirements (permissions or Bluetooth) are not yet met ,
+            * This prevents unnecessary checks during the first call to onResume.
+            * */
+            with(homeState.value) {
+                if (permissionState != true || bluetoothState != true)
+                    return
+            }
+            checkLocationStatus()
+
+        }
     }
 
     fun stopScan() {
-        bluetoothInteractor.stopScnBluetoothUseCase
+        bluetoothInteractor.stopScnBluetoothUseCase()
     }
 
 

@@ -7,7 +7,6 @@ import com.example.bluetoothtracker.data.mapper.toEntityList
 import com.example.bluetoothtracker.data.model.BluetoothScanResult
 import com.example.bluetoothtracker.domain.data.Device
 import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
-import com.example.bluetoothtracker.presentation.utils.printLog
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

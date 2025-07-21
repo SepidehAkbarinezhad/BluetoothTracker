@@ -28,7 +28,6 @@ import com.example.bluetoothtracker.presentation.components.AppText
 import com.example.bluetoothtracker.presentation.screen.home.HomeAction
 import com.example.bluetoothtracker.presentation.screen.home.HomeState
 import com.example.bluetoothtracker.presentation.utils.TextType
-import com.example.bluetoothtracker.presentation.utils.printLog
 
 @Composable
 fun TabContent(

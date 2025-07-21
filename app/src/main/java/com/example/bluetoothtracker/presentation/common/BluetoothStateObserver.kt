@@ -24,7 +24,6 @@ class BluetoothStateObserver(
     private lateinit var btEnableResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(owner: LifecycleOwner) {
-        printLog("BluetoothStateObserver oncreate")
         super.onCreate(owner)
         registerBluetoothLauncher()
         createBroadcastReceiver()
@@ -32,13 +31,11 @@ class BluetoothStateObserver(
 
     override fun onStart(owner: LifecycleOwner) {
         super.onStart(owner)
-        printLog("onStart")
         registerBroadCast()
     }
 
     override fun onStop(owner: LifecycleOwner) {
         super.onPause(owner)
-        printLog("onStop")
         try {
             unRegisterBroadCast()
         } catch (e: Exception) {
@@ -61,7 +58,6 @@ class BluetoothStateObserver(
     }
 
     fun updateBluetoothState() {
-        printLog("updateBluetoothState")
         onBluetoothStateChange(btAdapter?.isEnabled == true)
     }
 
@@ -72,7 +68,6 @@ class BluetoothStateObserver(
     * callback registered in registerBluetoothLauncher().
     * */
     fun requestEnableBluetooth() {
-        printLog("requestEnableBluetooth")
         val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
         btEnableResultLauncher.launch(intent)
     }
@@ -84,7 +79,6 @@ class BluetoothStateObserver(
     * the enable request dialog.
     * */
     private fun createBroadcastReceiver() {
-        printLog("createBroadcastReceiver")
         broadcastReceiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent) {
                 val action = intent.action
@@ -106,7 +100,6 @@ class BluetoothStateObserver(
     }
 
     private fun registerBroadCast() {
-        printLog("registerBroadCast")
         activity.registerReceiver(
             broadcastReceiver,
             IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
@@ -114,7 +107,6 @@ class BluetoothStateObserver(
     }
 
     private fun unRegisterBroadCast() {
-        printLog("unRegisterBroadCast")
         activity.unregisterReceiver(broadcastReceiver)
     }
 
