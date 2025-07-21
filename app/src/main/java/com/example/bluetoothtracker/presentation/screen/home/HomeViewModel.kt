@@ -58,8 +58,13 @@ class HomeViewModel @Inject constructor(
             is HomeAction.OnBluetoothStateChange -> {
                 printLog("OnBluetoothStateChange ->")
                 updateBluetoothState(state = action.bluetoothState)
-                showBluetoothAlertDialog(!action.bluetoothState)
-                if (action.bluetoothState) sendEvent(HomeEvent.CheckLocationServiceState)
+                if (action.bluetoothState) {
+                    checkLocationStatus()
+                } else {
+                    if (homeState.value.permissionState == true) {
+                        showBluetoothAlertDialog(true)
+                    }
+                }
             }
 
             is HomeAction.OnUpdateLocationServiceState -> {
@@ -97,17 +102,7 @@ class HomeViewModel @Inject constructor(
             }
 
             HomeAction.OnLocationAlertDialogDismiss -> showLocationAlertDialog(false)
-            HomeAction.CheckLocationStatuse -> {
-                /*
-                * Ensure requirement sequence: Permissions → Bluetooth → Location
-                * Skip location check if earlier requirements aren't met yet
-                 */
-                with(homeState.value) {
-                    if (permissionState != true || bluetoothState != true)
-                        return
-                }
-                sendEvent(HomeEvent.CheckLocationServiceState)
-            }
+            HomeAction.CheckLocationStatus -> checkLocationStatus()
         }
     }
 
@@ -144,6 +139,18 @@ class HomeViewModel @Inject constructor(
     private fun updateLocationServiceState(state: Boolean) {
         printLog("updateLocationServiceState  $state")
         homeState.update { it.copy(locationServicesState = state) }
+    }
+
+    fun checkLocationStatus() {
+        /*
+        * Ensure requirement sequence: Permissions → Bluetooth → Location
+        * Skip location check if earlier requirements aren't met yet
+        */
+        with(homeState.value) {
+            if (permissionState != true || bluetoothState != true)
+                return
+        }
+        sendEvent(HomeEvent.CheckLocationServiceState)
     }
 
     fun startScan() {

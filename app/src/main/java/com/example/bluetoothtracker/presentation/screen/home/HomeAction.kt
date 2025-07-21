@@ -13,5 +13,5 @@ sealed interface HomeAction {
     data object OnBluetoothAlertDialogDismiss : HomeAction
     data object OnLocationAlertDialogConfirmed : HomeAction
     data object OnLocationAlertDialogDismiss : HomeAction
-    data object CheckLocationStatuse : HomeAction
+    data object CheckLocationStatus : HomeAction
 }

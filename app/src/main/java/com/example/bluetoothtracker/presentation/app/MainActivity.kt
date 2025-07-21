@@ -128,7 +128,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         //Check when user returns from location Setting because the intent doesn't have returned intent unlike bluetooth
-        viewModel.onAction(HomeAction.CheckLocationStatuse)
+        viewModel.onAction(HomeAction.CheckLocationStatus)
     }
 }
 
