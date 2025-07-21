@@ -13,8 +13,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" 
         android:usesPermissionFlags="neverForLocation" />
     
-    <!-- Location permissions (required for Bluetooth scanning on all versions) -->
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Location permission (required for Bluetooth scanning on all versions) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
