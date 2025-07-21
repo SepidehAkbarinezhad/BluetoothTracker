@@ -25,7 +25,7 @@ class PermissionManager(
     }
 
     private fun hasRequiredPermissions(): Boolean {
-        return permissionsList.all {
+        return permissionsArray.all {
             ContextCompat.checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED
         }
     }

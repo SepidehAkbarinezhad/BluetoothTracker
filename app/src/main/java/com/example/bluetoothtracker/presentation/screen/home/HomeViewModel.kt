@@ -113,12 +113,12 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startScan() {
-        printLog("vm startScan")
+        printLog("vm startScan","sdkTag")
         bluetoothInteractor.startScnBluetooth()
     }
 
     fun stopScan() {
-        printLog("vm stopScan")
+        printLog("vm stopScan","sdkTag")
         bluetoothInteractor.stopScnBluetoothUseCase
     }
 
