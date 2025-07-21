@@ -26,8 +26,8 @@ import com.example.bluetoothtracker.presentation.utils.printLog
 fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
     val state by viewModel.homeStateValue.collectAsStateWithLifecycle()
 
-    LaunchedEffect(key1 = state.permissionState, key2 = state.bluetoothState) {
-        printLog("LaunchedEffect  $state", "sdkTag")
+    LaunchedEffect(key1 = state.permissionState, key2 = state.bluetoothState, key3 = state.locationServicesState) {
+        printLog("LaunchedEffect  $state")
         with(state) {
             when {
                 permissionState == true && bluetoothState == true && locationServicesState == true -> { viewModel.startScan() }

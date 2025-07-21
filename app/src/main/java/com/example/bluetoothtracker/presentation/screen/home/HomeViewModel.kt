@@ -141,7 +141,7 @@ class HomeViewModel @Inject constructor(
         homeState.update { it.copy(locationServicesState = state) }
     }
 
-    fun checkLocationStatus() {
+    private fun checkLocationStatus() {
         /*
         * Ensure requirement sequence: Permissions → Bluetooth → Location
         * Skip location check if earlier requirements aren't met yet
