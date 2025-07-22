@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 

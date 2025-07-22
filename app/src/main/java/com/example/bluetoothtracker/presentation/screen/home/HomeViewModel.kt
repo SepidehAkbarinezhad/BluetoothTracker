@@ -27,7 +27,6 @@ class HomeViewModel @Inject constructor(
     val homeStateValue: StateFlow<HomeState> = homeState.asStateFlow()
 
     init {
-        printLog("initttt")
         listenToScanAndInsertInDb()
         getDevices()
         observeMessage()
@@ -74,7 +73,6 @@ class HomeViewModel @Inject constructor(
             }
 
             HomeAction.OnGrantPermissionCancelled -> {
-                printLog("OnGrantPermissionCancelled")
                 updatePermissionState(false)
                 showPermissionDeniedDialog(true)
             }
@@ -116,9 +114,7 @@ class HomeViewModel @Inject constructor(
         }
     }
     private fun observeMessage(){
-        printLog("observeMessage")
         viewModelScope.launch { bluetoothInteractor.observeMessagesUseCase().collect{message->
-            printLog("messagee:: $message")
             sendEvent(HomeEvent.ShowToast(message = message))
         } }
     }
@@ -133,7 +129,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun showPermissionDeniedDialog(show: Boolean) {
-        printLog("showPermissionDeniedDialog $show")
         homeState.update { it.copy(showPermissionDeniedDialog = show) }
     }
 
@@ -154,7 +149,6 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updateLocationServiceState(state: Boolean) {
-        printLog("updateLocationServiceState  $state")
         homeState.update { it.copy(locationServicesState = state) }
     }
 

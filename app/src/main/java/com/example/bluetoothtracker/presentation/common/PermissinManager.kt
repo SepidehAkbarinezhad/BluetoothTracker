@@ -19,7 +19,6 @@ class PermissionManager(
 
     override fun onCreate(owner: LifecycleOwner) {
         super.onCreate(owner)
-        printLog("onCreate")
         registerPermissionLauncher()
         onUpdatePermissionState(hasRequiredPermissions())
     }
