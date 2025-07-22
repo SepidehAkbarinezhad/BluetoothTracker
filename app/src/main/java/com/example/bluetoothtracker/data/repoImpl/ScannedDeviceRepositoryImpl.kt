@@ -32,4 +32,5 @@ class ScannedDeviceRepositoryImpl @Inject constructor(
     override suspend fun deleteAllDevices() {
         localDataSource.deleteAll()
     }
+
 }

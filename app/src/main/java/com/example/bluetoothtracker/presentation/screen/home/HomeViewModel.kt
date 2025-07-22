@@ -18,9 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val bluetoothInteractor: BluetoothInteractor,
-) :
-    ViewModel() {
-
+) : ViewModel() {
 
     private val _event = MutableSharedFlow<HomeEvent>(replay = 1)
     val event = _event.asSharedFlow()
@@ -29,21 +27,10 @@ class HomeViewModel @Inject constructor(
     val homeStateValue: StateFlow<HomeState> = homeState.asStateFlow()
 
     init {
-        bluetoothInteractor.insertScannedDeviceUseCase()
-        viewModelScope.launch {
-            bluetoothInteractor.getAllDevicesUseCase().collect { list ->
-                val sortedList = list.sortedByDescending { item -> item.rssi }
-                homeState.update {
-                    it.copy(
-                        onLineDevicesList = sortedList.filter { list -> list.isOnline }
-                            .toDeviceUiList()
-                            .also { list -> showOnlineDevicesLoading(list.isEmpty()) },
-                        offlineDevicesList = sortedList.filter { list -> !list.isOnline }
-                            .toDeviceUiList()
-                            .also { list -> showEmptyOfflineMessage(list.isEmpty()) })
-                }
-            }
-        }
+        printLog("initttt")
+        listenToScanAndInsertInDb()
+        getDevices()
+        observeMessage()
     }
 
     fun onAction(action: HomeAction) {
@@ -109,7 +96,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun sendEvent(event: HomeEvent) {
+    private fun listenToScanAndInsertInDb(){
+        bluetoothInteractor.insertScannedDeviceUseCase()
+    }
+    private fun getDevices(){
+        viewModelScope.launch {
+            bluetoothInteractor.getAllDevicesUseCase().collect { list ->
+                val sortedList = list.sortedByDescending { item -> item.rssi }
+                homeState.update {
+                    it.copy(
+                        onLineDevicesList = sortedList.filter { device -> device.isOnline }
+                            .toDeviceUiList()
+                            .also { list -> showOnlineDevicesLoading(list.isEmpty()) },
+                        offlineDevicesList = sortedList.filter { device -> !device.isOnline }
+                            .toDeviceUiList()
+                            .also { list -> showEmptyOfflineMessage(list.isEmpty()) })
+                }
+            }
+        }
+    }
+    private fun observeMessage(){
+        printLog("observeMessage")
+        viewModelScope.launch { bluetoothInteractor.observeMessagesUseCase().collect{message->
+            printLog("messagee:: $message")
+            sendEvent(HomeEvent.ShowToast(message = message))
+        } }
+    }
+    private fun sendEvent(event: HomeEvent) {
         viewModelScope.launch {
             _event.emit(event)
         }
@@ -158,7 +171,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startScan() {
-
+printLog("startScan()")
         /*
         * Ensure the required conditions are met in the following sequence before starting the scan: Permissions → Bluetooth → Location Services
         * If any of these are not satisfied, the corresponding dialog is handled to show within the Composable screen to request the necessary access

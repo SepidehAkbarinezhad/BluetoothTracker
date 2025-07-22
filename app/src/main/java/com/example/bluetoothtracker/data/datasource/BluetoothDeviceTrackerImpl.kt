@@ -25,7 +25,10 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
     private val bluetoothAdapter: BluetoothAdapter?,
 ) : BluetoothDeviceTracker {
 
-    private val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
+    private val _messages = MutableSharedFlow<String>()
+
+    override fun messageFlow(): Flow<String> = _messages
+    private val bluetoothScanner = bluetoothAdapter?.bluetoothLeScanner
 
     private val _scannedDevices = MutableSharedFlow<List<BluetoothScanResult>>(
         replay = 1,
@@ -41,11 +44,10 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
 
     private val scanCallback = object : ScanCallback() {
-
         override fun onScanFailed(errorCode: Int) {
             super.onScanFailed(errorCode)
             printLog("Scan error $errorCode")
-            stop()
+            stopScan()
         }
 
         @SuppressLint("MissingPermission")
@@ -66,7 +68,6 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
                 scannedDeviceCache[mac] = device
             }
         }
-
     }
 
     override fun isBluetoothEnabled(): Boolean = bluetoothAdapter?.isEnabled == true
@@ -78,11 +79,10 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
         scanJob = appScope.launch {
             while (isActive) {
                 // Start scanning
-                bluetoothLeScanner?.startScan(scanCallback)
+                bluetoothScanner?.startScan(scanCallback)
                 delay(scanPeriod) // scan for 10 seconds
-                printLog("result: ${scannedDeviceCache.values}")
                 // Stop scanning
-                bluetoothLeScanner?.stopScan(scanCallback)
+                bluetoothScanner?.stopScan(scanCallback)
                 emitForInsertInRoom()
                 delay(waitPeriod) // wait for 5 seconds
             }
@@ -99,22 +99,20 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
     @SuppressLint("MissingPermission")
     override fun stopScan() {
         scanJob?.cancel()
-        bluetoothLeScanner?.stopScan(scanCallback)
+        try {
+            bluetoothScanner?.stopScan(scanCallback)
+        }catch (e:Exception){
+            emitMessage("exception: ${e.message}")
+        }
+
     }
+
 
     override fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>> = scannedDevices
 
-    @SuppressLint("MissingPermission")
-    private fun stop() {
-        try {
-            Timber.d("stopScan")
-            if (isBluetoothEnabled()) {
-                stopScan()
-            }
-        } catch (e: Exception) {
-            Timber.d("${e.message}")
-        } finally {
-
+    private fun emitMessage(message: String) {
+        appScope.launch {
+            _messages.emit(message)
         }
     }
 }

@@ -6,7 +6,6 @@ import com.example.bluetoothtracker.domain.repository.ScannedDeviceRepository
 import com.example.bluetoothtracker.presentation.utils.printLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

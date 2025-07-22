@@ -19,6 +19,7 @@ import com.example.bluetoothtracker.presentation.screen.home.HomeViewModel
 import com.example.bluetoothtracker.presentation.utils.printLog
 import com.example.bluetoothtracker.ui.theme.BluetoothTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -41,29 +42,30 @@ class MainActivity : ComponentActivity() {
         initLocationServiceManager()
         enableEdgeToEdge()
         setContent {
-            val event by viewModel.event.collectAsStateWithLifecycle(null)
-            LaunchedEffect(event) {
-                when (event) {
-                    is HomeEvent.CheckBluetoothState -> {
-                        bluetoothStateObserver.updateBluetoothState()
+            LaunchedEffect(Unit) {
+                viewModel.event.collectLatest { event ->
+                    when (event) {
+                        is HomeEvent.CheckBluetoothState -> {
+                            bluetoothStateObserver.updateBluetoothState()
+                        }
+                        is HomeEvent.RequestBluetoothPermission -> {
+                            permissionManager.requestBluetoothPermissions()
+                        }
+                        is HomeEvent.RequestEnableBluetooth -> {
+                            bluetoothStateObserver.requestEnableBluetooth()
+                        }
+                        is HomeEvent.CheckLocationServiceState -> {
+                            val locationIsOn = locationServiceManager.updateLocationServiceState()
+                            viewModel.onAction(HomeAction.OnUpdateLocationServiceState(state = locationIsOn))
+                        }
+                        is HomeEvent.RequestEnableLocationServices -> {
+                            locationServiceManager.promptEnableLocationServices()
+                        }
+                        else -> {}
                     }
-                    is HomeEvent.RequestBluetoothPermission -> {
-                        permissionManager.requestBluetoothPermissions()
-                    }
-                    is HomeEvent.RequestEnableBluetooth -> {
-                        bluetoothStateObserver.requestEnableBluetooth()
-                    }
-                    is HomeEvent.CheckLocationServiceState -> {
-                        val locationIsOn = locationServiceManager.updateLocationServiceState()
-                        viewModel.onAction(HomeAction.OnUpdateLocationServiceState(state = locationIsOn))
-                    }
-                    is HomeEvent.RequestEnableLocationServices -> {
-                        locationServiceManager.promptEnableLocationServices()
-                    }
-                    else -> {}
                 }
             }
-            BluetoothTrackerTheme {
+            BluetoothTrackerTheme(eventFlow = viewModel.event) {
                 HomeScreenRoot(viewModel = viewModel)
             }
         }

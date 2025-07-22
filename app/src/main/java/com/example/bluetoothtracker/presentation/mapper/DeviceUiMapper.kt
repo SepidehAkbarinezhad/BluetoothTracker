@@ -6,7 +6,7 @@ import com.example.bluetoothtracker.presentation.utils.toReadableDate
 
 fun Device.toDeviceUiModel(): DeviceUiModel {
     return DeviceUiModel(
-        name = name.ifEmpty { "Known" },
+        name = name.ifEmpty { "UnKnown" },
         macAddress = macAddress,
         lastSeenFormatted = lastSeen.toReadableDate(),
         rssi = rssi.toString()
