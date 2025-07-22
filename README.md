@@ -17,5 +17,11 @@ An Android application that scans and tracks nearby Bluetooth devices in real-ti
 
 🔧 Compatible with modern Android SDKs
 
+<p align="center">
+    <a href="https://github.com/SepidehAkbarinezhad/BluetoothTracker/releases/download/1.0.0/bluetooth_tracker.apk">
+        <img alt="Github" src="/readMe/github_button.png" width="180" height="55">
+    </a>
+</p>
+
 ###  Demo
-<img src="/demo/demo_preview.gif" width="300"  height="560"/>
+<img src="/readMe/demo_preview.gif" width="300"  height="560"/>
