@@ -7,9 +7,10 @@ import com.example.bluetoothtracker.domain.data.Device
 fun ScannedDeviceEntity.toDomain(): Device = with(this) {
     Device(
         macAddress = macAddress,
-        name = name ?: "",
+        name = name ,
         rssi = rssi,
-        lastSeen = lastSeen
+        lastSeen = lastSeen,
+
     )
 }
 

@@ -14,4 +14,5 @@ interface BluetoothRepository {
     fun startScan()
     fun stopScan()
     fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>>
+    fun messageFlow(): Flow<String>
 }

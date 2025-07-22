@@ -5,5 +5,5 @@ data class Device(
     val macAddress: String,
     val rssi: Int,
     val lastSeen: Long,
-    val isOnline: Boolean
+    val isOnline: Boolean=false
 )

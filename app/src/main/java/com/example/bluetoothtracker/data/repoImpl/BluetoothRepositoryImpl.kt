@@ -24,4 +24,8 @@ class BluetoothRepositoryImpl @Inject constructor(private val bluetoothManager: 
     override fun scannedDevicesFlow(): Flow<List<BluetoothScanResult>> =
         bluetoothManager.scannedDevicesFlow()
 
+    override fun messageFlow(): Flow<String> =
+        bluetoothManager.messageFlow()
+
+
 }

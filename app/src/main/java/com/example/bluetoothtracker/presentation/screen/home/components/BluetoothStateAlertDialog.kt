@@ -13,7 +13,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.example.bluetoothtracker.R
-import com.example.bluetoothtracker.presentation.components.AppButton
 import com.example.bluetoothtracker.presentation.components.AppDialog
 import com.example.bluetoothtracker.presentation.components.AppRowButtons
 import com.example.bluetoothtracker.presentation.components.AppText

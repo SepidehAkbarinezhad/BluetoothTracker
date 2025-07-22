@@ -15,8 +15,8 @@ class ScannedDeviceLocalDataSourceImpl @Inject constructor(
         dao.insert(device)
     }
 
-    override suspend fun insertAll(deviceList: List<ScannedDeviceEntity>) {
-        dao.insertAll(deviceList)
+    override suspend fun insertAll(devices: List<ScannedDeviceEntity>) {
+        dao.insertAll(devices)
     }
 
     override fun getAll(): Flow<List<ScannedDeviceEntity>> = dao.getAll()
