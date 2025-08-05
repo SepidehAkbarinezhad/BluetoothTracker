@@ -30,8 +30,7 @@ fun HomeScreenRoot(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
         printLog("LaunchedEffect  $state")
         with(state) {
             when {
-                permissionState == true && bluetoothState == true && locationServicesState == true -> {
-                    viewModel.startScan() }
+                allRequiredReady -> { viewModel.startScan() }
                 permissionState == false || bluetoothState == false -> { viewModel.stopScan() }
             }
         }
