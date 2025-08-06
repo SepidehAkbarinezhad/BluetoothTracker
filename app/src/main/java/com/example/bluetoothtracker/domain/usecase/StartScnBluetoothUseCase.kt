@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class StartScnBluetoothUseCase @Inject constructor(private val bluetoothRepository: BluetoothRepository) {
     operator fun invoke() {
-        printLog("Bluetooth is on ?: ${bluetoothRepository.isBluetoothEnabled()}")
+        printLog("Bluetooth is on ?: ${bluetoothRepository.isBluetoothEnabled()}","stateCheck")
             bluetoothRepository.startScan()
 
     }

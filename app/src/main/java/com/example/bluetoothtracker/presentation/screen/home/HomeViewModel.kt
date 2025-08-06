@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.bluetoothtracker.domain.interactor.BluetoothInteractor
 import com.example.bluetoothtracker.presentation.mapper.toDeviceUiList
+import com.example.bluetoothtracker.presentation.screen.state.PermissionScanState
+import com.example.bluetoothtracker.presentation.screen.state.ScanState
 import com.example.bluetoothtracker.presentation.utils.printLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,6 +21,9 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val bluetoothInteractor: BluetoothInteractor,
 ) : ViewModel() {
+
+    private var currentScanState: ScanState = PermissionScanState
+
 
     private val _event = MutableSharedFlow<HomeEvent>(replay = 1)
     val event = _event.asSharedFlow()
@@ -36,29 +41,15 @@ class HomeViewModel @Inject constructor(
         when (action) {
             is HomeAction.OnUpdatePermissionState -> {
                 updatePermissionState(state = action.permissionState)
-                if (action.permissionState) {
-                    //update bluetooth state just when permissions are granted
-                    sendEvent(HomeEvent.CheckBluetoothState)
-                } else {
-                    // Show dialog: "Bluetooth features won't work without permission"
-                    showPermissionAlertDialog(true)
-                }
             }
 
             is HomeAction.OnBluetoothStateChange -> {
+                printLog("HomeAction.OnBluetoothStateChange ->  ${action.bluetoothState}","stateCheck")
                 updateBluetoothState(state = action.bluetoothState)
-                if (action.bluetoothState) {
-                    checkLocationStatus()
-                } else {
-                    if (homeState.value.permissionState == true) {
-                        showBluetoothAlertDialog(true)
-                    }
-                }
             }
 
             is HomeAction.OnUpdateLocationServiceState -> {
                 updateLocationServiceState(state = action.state)
-                if (!action.state) showLocationAlertDialog(true)
             }
 
             HomeAction.OnPermissionAlertDialogConfirm -> {
@@ -88,16 +79,15 @@ class HomeViewModel @Inject constructor(
                 showLocationAlertDialog(false)
                 sendEvent(HomeEvent.RequestEnableLocationServices)
             }
-
             HomeAction.OnLocationAlertDialogDismiss -> showLocationAlertDialog(false)
-            HomeAction.CheckLocationStatus -> checkLocationStatus()
         }
     }
 
-    private fun listenToScanAndInsertInDb(){
+    private fun listenToScanAndInsertInDb() {
         bluetoothInteractor.insertScannedDeviceUseCase()
     }
-    private fun getDevices(){
+
+    private fun getDevices() {
         viewModelScope.launch {
             bluetoothInteractor.getAllDevicesUseCase().collect { list ->
                 val sortedList = list.sortedByDescending { item -> item.rssi }
@@ -113,18 +103,22 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-    private fun observeMessage(){
-        viewModelScope.launch { bluetoothInteractor.observeMessagesUseCase().collect{message->
-            sendEvent(HomeEvent.ShowToast(message = message))
-        } }
+
+    private fun observeMessage() {
+        viewModelScope.launch {
+            bluetoothInteractor.observeMessagesUseCase().collect { message ->
+                sendEvent(HomeEvent.ShowToast(message = message))
+            }
+        }
     }
-    private fun sendEvent(event: HomeEvent) {
+
+    fun sendEvent(event: HomeEvent) {
         viewModelScope.launch {
             _event.emit(event)
         }
     }
 
-    private fun showPermissionAlertDialog(show: Boolean) {
+    fun showPermissionAlertDialog(show: Boolean) {
         homeState.update { it.copy(showPermissionAlertDialog = show) }
     }
 
@@ -132,11 +126,12 @@ class HomeViewModel @Inject constructor(
         homeState.update { it.copy(showPermissionDeniedDialog = show) }
     }
 
-    private fun showBluetoothAlertDialog(show: Boolean) {
+    fun showBluetoothAlertDialog(show: Boolean) {
         homeState.update { it.copy(showBluetoothStateAlertDialog = show) }
     }
 
-    private fun showLocationAlertDialog(show: Boolean) {
+    fun showLocationAlertDialog(show: Boolean) {
+        printLog("showLocationAlertDialog  $show","stateCheck")
         homeState.update { it.copy(showLocationServiceAlertDialog = show) }
     }
 
@@ -152,7 +147,7 @@ class HomeViewModel @Inject constructor(
         homeState.update { it.copy(locationServicesState = state) }
     }
 
-    private fun checkLocationStatus() {
+    fun checkLocationStatus() {
         sendEvent(HomeEvent.CheckLocationServiceState)
     }
 
@@ -165,30 +160,26 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startScan() {
-printLog("startScan()")
-        /*
-        * Ensure the required conditions are met in the following sequence before starting the scan: Permissions → Bluetooth → Location Services
-        * If any of these are not satisfied, the corresponding dialog is handled to show within the Composable screen to request the necessary access
-        * */
-        if (homeStateValue.value.allRequiredReady) {
-            bluetoothInteractor.startScnBluetooth()
-        } else {
-            /*
-            * - the `else` block handles the case when the user returns from Location Settings,
-            * since the Location intent doesn't return a result like Bluetooth does.
-            * - Skip the location check if earlier requirements (permissions or Bluetooth) are not yet met ,
-            * This prevents unnecessary checks during the first call to onResume.
-            * */
-            with(homeState.value) {
-                if (permissionState != true || bluetoothState != true)
-                    return
-            }
-            checkLocationStatus()
-
+        printLog("startScan","stateCheck")
+        viewModelScope.launch {
+            currentScanState.handle(this@HomeViewModel)
+        }
+    }
+    fun moveToState(nextState: ScanState) {
+        currentScanState = nextState
+        viewModelScope.launch {
+            currentScanState.handle(this@HomeViewModel)
         }
     }
 
+    fun startScanNow() {
+        printLog("startScanNow","stateCheck")
+        bluetoothInteractor.startScnBluetooth()
+    }
+
+
     fun stopScan() {
+        printLog("stopScan","stateCheck")
         bluetoothInteractor.stopScnBluetoothUseCase()
     }
 

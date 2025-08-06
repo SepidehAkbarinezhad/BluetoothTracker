@@ -73,6 +73,7 @@ class BluetoothDeviceTrackerImpl @Inject constructor(
 
     @SuppressLint("MissingPermission")
     override fun startScan() {
+        printLog("startScan()","stateCheck")
         // Cancel previous job if any
         scanJob?.cancel()
         scanJob = appScope.launch {

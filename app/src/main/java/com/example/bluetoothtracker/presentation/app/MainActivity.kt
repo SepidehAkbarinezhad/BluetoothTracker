@@ -53,8 +53,8 @@ class MainActivity : ComponentActivity() {
                             bluetoothStateObserver.requestEnableBluetooth()
                         }
                         is HomeEvent.CheckLocationServiceState -> {
-                            val locationIsOn = locationServiceManager.updateLocationServiceState()
-                            viewModel.onAction(HomeAction.OnUpdateLocationServiceState(state = locationIsOn))
+                            val isLocationOn = locationServiceManager.updateLocationServiceState()
+                            viewModel.onAction(HomeAction.OnUpdateLocationServiceState(state = isLocationOn))
                         }
                         is HomeEvent.RequestEnableLocationServices -> {
                             locationServiceManager.promptEnableLocationServices()
@@ -110,6 +110,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onResume() {
+        printLog("onResume()","stateCheck")
         super.onResume()
         viewModel.startScan()
     }
